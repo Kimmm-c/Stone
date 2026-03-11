@@ -19,7 +19,8 @@ set(SDL3_IMAGE_LIB_DIR "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3_Image/x64")
 # ---- Include Directories (VC++ -> Include Directories) ----
 target_include_directories(Stone
     PRIVATE 
-        "${CMAKE_SOURCE_DIR}/Stone/src"
+        "${CMAKE_SOURCE_DIR}/Stone/include"
+        "${CMAKE_SOURCE_DIR}/Stone/include/vendor"
 )
 
 # ---- Library Directories (VC++ -> Library Directories) ----
