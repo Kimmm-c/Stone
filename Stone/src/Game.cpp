@@ -1,15 +1,18 @@
+#if 0
 #include "Game.h"
 #include "Window.h"
 #include "Renderer.h"
 #include "SceneManager.h"
+#include "Time.h"
 
 #include <SDL3/SDL.h>
 
 static SDL_Event event; // Initialized only once and accessible within this file only
 
-void Game::init( const char* title, int windowWidth, int windowHeight, bool fullScreen )
+void Game::init( const char* title, int windowWidth, int windowHeight, bool fullScreen, uint32_t frameRate )
 {
     m_Window = std::make_unique<Window>( title, windowWidth, windowHeight, fullScreen );
+    m_Time = std::make_unique<Time>( frameRate );
 
     if (m_Window->exists()) {
         m_Renderer = std::make_unique<Renderer>( m_Window, title );
@@ -24,6 +27,17 @@ void Game::init( const char* title, int windowWidth, int windowHeight, bool full
     }
 
     m_IsRunning = true;
+}
+
+void Game::run()
+{
+    while (m_IsRunning) {
+        processInput();
+        update( m_Time->getDelta() );
+        render();
+
+        m_Time->synchronizeFrameRate();
+    }
 }
 
 void Game::processInput()
@@ -46,5 +60,6 @@ void Game::update( float delta )
 
 void Game::render()
 {
-    m_SceneManager->render();
+    m_SceneManager->render( m_Renderer );
 }
+#endif

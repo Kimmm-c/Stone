@@ -1,3 +1,4 @@
+#if 0
 #include "Scene.h"
 #include "Registry.h"
 #include "SystemScheduler.h"
@@ -21,3 +22,5 @@ void Scene::render( const std::unique_ptr<Renderer>& renderer )
 {
 
 }
+
+#endif

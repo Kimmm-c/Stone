@@ -8,7 +8,6 @@ file(GLOB_RECURSE PROJECT_SOURCES
 
 # Add source to this project's executable.
 add_executable (Stone
-                "Stone.cpp"
                 ${PROJECT_SOURCES}
                 )
 

@@ -5,6 +5,7 @@
 class Window;
 class Renderer;
 class SceneManager;
+class Time;
 
 class Game
 {
@@ -12,7 +13,7 @@ public:
     Game() = default;
     ~Game() = default;
 
-    void init( const char* title, int windowWidth, int windowHeight, bool fullScreen );
+    void init( const char* title, int windowWidth, int windowHeight, bool fullScreen, uint32_t frameRate );
     void run();
 
 private:
@@ -29,4 +30,5 @@ private:
 
     std::unique_ptr<Window> m_Window = nullptr;
     std::unique_ptr<Renderer> m_Renderer = nullptr;
+    std::unique_ptr<Time> m_Time = nullptr;
 };

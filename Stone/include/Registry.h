@@ -24,7 +24,7 @@ public:
     template<typename T>
     T& getComponent( const Entity& entity )
     {
-
+        
     }
 
     template<typename T>

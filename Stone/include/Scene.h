@@ -19,7 +19,7 @@ public:
     template<typename T, typename... Args>
     T& addComponent( const Entity& entity, Args&&... args )
     {
-        return m_Registry->addComponent<T>( entity, args );
+        //return m_Registry->addComponent<T>( entity, args );
     }
 
 

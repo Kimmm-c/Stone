@@ -1,3 +1,4 @@
+#if 0
 #include "Window.h"
 
 Window::Window( const char* title, int width, int height, bool fullscreen )
@@ -20,3 +21,5 @@ Window::Window( const char* title, int width, int height, bool fullscreen )
         );
     }
 }
+
+#endif
