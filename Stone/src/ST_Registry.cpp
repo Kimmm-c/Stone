@@ -6,7 +6,8 @@ ST_Entity& ST_Registry::createEntity()
     return entity;
 }
 
-void ST_Registry::destroyEntity()
+void ST_Registry::destroyEntity( EntityID id )
 {
-
+    for (auto& pool : m_ComponentPools)
+        pool->remove( id );
 }
