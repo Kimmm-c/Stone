@@ -30,6 +30,6 @@ private:
     void render( const std::unique_ptr<Renderer>& renderer );
 
 private:
-    std::unique_ptr<Registry> m_Registry = nullptr;
-    std::unique_ptr<SystemScheduler> m_SystemScheduler = nullptr;
+    //std::unique_ptr<Registry> m_Registry = nullptr;
+    //std::unique_ptr<SystemScheduler> m_SystemScheduler = nullptr;
 };

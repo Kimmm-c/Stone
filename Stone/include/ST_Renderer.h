@@ -2,13 +2,13 @@
 
 #include <SDL3/SDL.h>
 
-class Window;
+class ST_Window;
 
-class Renderer
+class ST_Renderer
 {
 public:
-    Renderer( Window* window, const char* name = nullptr );
-    ~Renderer() = default;
+    ST_Renderer( ST_Window* window, const char* name = nullptr );
+    ~ST_Renderer() = default;
 
     inline bool exists() const { return m_NativeRenderer != nullptr; }
 

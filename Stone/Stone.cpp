@@ -2,15 +2,15 @@
 //
 
 #include "Stone.h"
-//#include "Game.h"
+#include "ST_Game.h"
 
 using namespace std;
 
 int main()
 {
-    //Game* game = new Game();
-    //game->init( "Stone Duel", 800, 600, false, 60 );
-    //game->run();
+    ST_Game* game = new ST_Game( "Stone Duel", 800, 600, false, 60 );
+    game->init();
+    game->run();
 
     cout << "Hello CMake." << endl;
     return 0;

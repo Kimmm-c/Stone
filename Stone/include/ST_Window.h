@@ -2,11 +2,11 @@
 
 #include <SDL3/SDL.h>
 
-class Window
+class ST_Window
 {
 public:
-    Window( const char* title, int width, int height, bool fullscreen );
-    ~Window() = default;
+    ST_Window( const char* title, int width, int height, bool fullscreen );
+    ~ST_Window() = default;
 
     inline int getWidth() const { return m_Width; }
     inline int getHeight() const { return m_Height; }

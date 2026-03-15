@@ -1,7 +1,6 @@
-#if 0
-#include "Window.h"
+#include "ST_Window.h"
 
-Window::Window( const char* title, int width, int height, bool fullscreen )
+ST_Window::ST_Window( const char* title, int width, int height, bool fullscreen )
     : m_Width( width )
     , m_Height( height )
 {
@@ -21,5 +20,3 @@ Window::Window( const char* title, int width, int height, bool fullscreen )
         );
     }
 }
-
-#endif
