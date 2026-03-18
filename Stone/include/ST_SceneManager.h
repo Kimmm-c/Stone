@@ -7,14 +7,19 @@
 
 #include "ST_Scene.h"
 
-class SceneManager
+class ST_SceneManager
 {
 public:
-    void loadScene( const char* sceneName, bool isCurrentScene = false )
-    {
-        m_Scenes[sceneName] = std::make_unique<Scene>();
+    ST_SceneManager() = default;
+    ~ST_SceneManager() = default;
 
-        if (isCurrentScene) m_CurrentScene = m_Scenes[sceneName].get();
+    ST_Scene& loadScene( const std::string& sceneName, bool isCurrentScene = false )
+    {
+        auto [it, inserted] = m_Scenes.emplace( sceneName, std::make_unique<ST_Scene>() );
+
+        if (isCurrentScene) m_CurrentScene = it->second.get();
+
+        return *it->second;
     }
 
     void update( float delta, const SDL_Event& event )
@@ -22,12 +27,12 @@ public:
         if (m_CurrentScene) m_CurrentScene->update( delta, event );
     }
 
-    void render( const std::unique_ptr<Renderer>& renderer )
+    void render()
     {
-        if (m_CurrentScene) m_CurrentScene->render( renderer );
+        if (m_CurrentScene) m_CurrentScene->render();
     }
 
 private:
-    Scene* m_CurrentScene = nullptr;
-    std::unordered_map<std::string, std::unique_ptr<Scene>> m_Scenes{};
+    ST_Scene* m_CurrentScene = nullptr;
+    std::unordered_map<std::string, std::unique_ptr<ST_Scene>> m_Scenes;
 };

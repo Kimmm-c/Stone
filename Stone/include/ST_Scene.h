@@ -3,33 +3,34 @@
 #include <memory>
 #include <SDL3/SDL.h>
 
-class Registry;
-class SystemScheduler;
-class Entity;
-class Renderer;
+#include "ST_Layer.h"
+#include "ST_ISystem.h"
 
-class Scene
+class ST_Scene
 {
 public:
-    Scene();
-    ~Scene() = default;
-
-    Entity& createEntity();
-
-    template<typename T, typename... Args>
-    T& addComponent( const Entity& entity, Args&&... args )
-    {
-        //return m_Registry->addComponent<T>( entity, args );
-    }
+    ST_Scene() = default;
+    ~ST_Scene() = default;
 
 
-    friend class SceneManager;
+    //template<typename T, typename... Args>
+    //T& addComponent( const Entity& entity, Args&&... args )
+    //{
+    //    return m_Registry->addComponent<T>( entity, std::forward<Args>( args )... );
+    //}
+    ST_Layer& createLayer();
+
+
+    friend class ST_SceneManager;
 
 private:
     void update( float delta, const SDL_Event& event );
-    void render( const std::unique_ptr<Renderer>& renderer );
+    void render();
 
 private:
-    //std::unique_ptr<Registry> m_Registry = nullptr;
+    //std::unique_ptr<ST_Registry> m_Registry = nullptr;
     //std::unique_ptr<SystemScheduler> m_SystemScheduler = nullptr;
+
+    std::vector<std::unique_ptr<ST_Layer>> m_Layers{};
+    std::vector<std::unique_ptr<ST_ISystem>> m_Systems{};
 };

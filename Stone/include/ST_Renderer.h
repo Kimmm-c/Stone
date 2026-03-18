@@ -11,6 +11,7 @@ public:
     ~ST_Renderer() = default;
 
     inline bool exists() const { return m_NativeRenderer != nullptr; }
+    inline SDL_Renderer* getNativeRenderer() const { return m_NativeRenderer; }
 
 private:
     SDL_Renderer* m_NativeRenderer = nullptr;

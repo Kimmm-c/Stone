@@ -21,6 +21,7 @@ target_include_directories(Stone
     PRIVATE 
         "${CMAKE_SOURCE_DIR}/Stone/include"
         "${CMAKE_SOURCE_DIR}/Stone/include/vendor"
+        "${CMAKE_SOURCE_DIR}/Stone/include/systems"
 )
 
 # ---- Library Directories (VC++ -> Library Directories) ----

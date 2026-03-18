@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -67,3 +68,5 @@ private:
     std::vector<T> m_Components{};
     std::unordered_map<EntityID, int> m_EntityToComponentMap{};
 };
+
+#endif

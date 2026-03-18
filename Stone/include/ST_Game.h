@@ -5,8 +5,7 @@
 #include "ST_Window.h"
 #include "ST_Renderer.h"
 #include "ST_Time.h"
-
-class SceneManager;
+#include "ST_SceneManager.h"
 
 class ST_Game
 {
@@ -16,6 +15,8 @@ public:
 
     void init();
     void run();
+
+    inline ST_Renderer* getRenderer() { return m_Renderer.get(); }
 
 private:
     void processInput();
@@ -27,7 +28,7 @@ private:
 private:
     bool m_IsRunning = false;
 
-    std::unique_ptr<SceneManager> m_SceneManager{};
+    std::unique_ptr<ST_SceneManager> m_SceneManager = std::make_unique<ST_SceneManager>();
 
     std::unique_ptr<ST_Window> m_Window = nullptr;
     std::unique_ptr<ST_Renderer> m_Renderer = nullptr;

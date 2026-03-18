@@ -6,9 +6,11 @@
 
 using namespace std;
 
+ST_Game* game;
+
 int main()
 {
-    ST_Game* game = new ST_Game( "Stone Duel", 800, 600, false, 60 );
+    game = new ST_Game( "Stone Duel", 800, 600, false, 60 );
     game->init();
     game->run();
 

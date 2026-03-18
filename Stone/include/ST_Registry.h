@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include <vector>
 #include <memory>
 #include <typeindex>
@@ -60,3 +61,4 @@ private:
     std::vector<std::unique_ptr<ST_IComponentPool>> m_ComponentPools{};
     std::unordered_map<std::type_index, ST_IComponentPool*> m_PoolMap{};
 };
+#endif

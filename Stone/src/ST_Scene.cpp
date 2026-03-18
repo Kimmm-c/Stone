@@ -1,26 +1,20 @@
-#if 0
-#include "Scene.h"
-#include "Registry.h"
-#include "SystemScheduler.h"
+#include "ST_Scene.h"
 
-Scene::Scene()
-    : m_Registry( std::make_unique<Registry>() )
-    , m_SystemScheduler( std::make_unique<SystemScheduler>() )
-{}
-
-Entity& Scene::createEntity()
+ST_Layer& ST_Scene::createLayer()
 {
+    m_Layers.emplace_back( std::make_unique<ST_Layer>() );
 
+    return *m_Layers.back();
 }
 
-void Scene::update( float delta, const SDL_Event& event )
+void ST_Scene::update( float delta, const SDL_Event& event )
 {
-
+    for (auto& layer : m_Layers)
+        layer->update( delta, event );
 }
 
-void Scene::render( const std::unique_ptr<Renderer>& renderer )
+void ST_Scene::render()
 {
-
+    for (auto& layer : m_Layers)
+        layer->render();
 }
-
-#endif

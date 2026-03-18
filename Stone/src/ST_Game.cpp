@@ -1,5 +1,4 @@
 #include "ST_Game.h"
-#include "ST_SceneManager.h"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -29,7 +28,29 @@ ST_Game::ST_Game( const char* title, int windowWidth, int windowHeight, bool ful
 
 void ST_Game::init()
 {
-    SDL_Log( "setting up the game.." );
+    // create a scene
+    ST_Scene& gameplayScene = m_SceneManager->loadScene( "gameplay", true );
+    ST_Layer& midground = gameplayScene.createLayer();
+
+    // create player
+    ST_Entity& player = midground.createEntity();
+    player.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    player.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 100.0f );
+
+    SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\mario.png" );
+    SDL_FRect playerSrc{ 0, 0, 32,32 };
+    SDL_FRect playerDst{ 0, 0, 64, 64 };
+    player.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
+
+    // Set up camera
+    Camera camera;
+    camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
+    camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
+    camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
+
+
+    ST_Entity& cameraEntity = midground.createEntity();
+    cameraEntity.addComponent<Camera>( camera );
 }
 
 void ST_Game::run()
@@ -58,12 +79,12 @@ void ST_Game::processInput()
 
 void ST_Game::update( float delta )
 {
-    //m_SceneManager->update( delta, event );
-    std::cout << "updating a frame..." << std::endl;
+    m_SceneManager->update( delta, event );
 }
 
 void ST_Game::render()
 {
-    //m_SceneManager->render( m_Renderer );
-    std::cout << "rendering a frame..." << std::endl;
+    SDL_RenderClear( m_Renderer->getNativeRenderer() );
+    m_SceneManager->render();
+    SDL_RenderPresent( m_Renderer->getNativeRenderer() );
 }

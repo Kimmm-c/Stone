@@ -1,3 +1,4 @@
+#if 0
 #include "ST_Registry.h"
 
 ST_Entity& ST_Registry::createEntity()
@@ -11,3 +12,5 @@ void ST_Registry::destroyEntity( EntityID id )
     for (auto& pool : m_ComponentPools)
         pool->remove( id );
 }
+
+#endif
