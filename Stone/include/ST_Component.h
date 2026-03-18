@@ -69,7 +69,16 @@ struct SceneState
     int coinsCollected = 0;
 };
 
+struct Terrain
+{
+    int width{};
+    int heigth{};
+
+    // 1 = solid, 0 = empty
+    std::vector<std::vector<int>> grid{};
+};
+
 
 // ------------ TAGS ---------------- //
 struct PlayerTag {};
-struct ProjectileTag {};
+struct DestructiveProjectileTag {};

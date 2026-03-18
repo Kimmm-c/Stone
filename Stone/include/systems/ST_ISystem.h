@@ -6,8 +6,14 @@
 
 #include "ST_Entity.h"
 
+struct ST_SystemContext
+{
+    float delta;
+    SDL_Event& event;
+};
+
 class ST_ISystem
 {
 public:
-    virtual void update( std::vector<std::unique_ptr<ST_Entity>>& entities, float delta, SDL_Event& event ) = 0;
+    virtual void update( std::vector<std::unique_ptr<ST_Entity>>& entities, const ST_SystemContext& context ) = 0;
 };
