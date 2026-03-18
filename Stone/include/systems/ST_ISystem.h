@@ -10,6 +10,8 @@ struct ST_SystemContext
 {
     float delta;
     SDL_Event& event;
+    
+    Camera& camera;
 };
 
 class ST_ISystem

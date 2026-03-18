@@ -37,13 +37,14 @@ void ST_Game::init()
     player.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     player.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 100.0f );
 
-    SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\mario.png" );
+    //SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\mario.png" );
+    SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp-projects\\Stone\\Stone\\assets\\mario.png" );
     SDL_FRect playerSrc{ 0, 0, 32,32 };
     SDL_FRect playerDst{ 0, 0, 64, 64 };
     player.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
 
     // Set up camera
-    Camera camera;
+    Camera camera = gameplayScene.createCamera();
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
     camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);

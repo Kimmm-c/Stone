@@ -6,6 +6,7 @@
 
 #include "ST_Entity.h"
 #include "ST_RenderingSystem.h"
+#include "ST_ISystem.h"
 
 class ST_Layer
 {

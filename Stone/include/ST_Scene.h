@@ -19,6 +19,7 @@ public:
     //    return m_Registry->addComponent<T>( entity, std::forward<Args>( args )... );
     //}
     ST_Layer& createLayer();
+    Camera& createCamera();
 
 
     friend class ST_SceneManager;
@@ -33,4 +34,6 @@ private:
 
     std::vector<std::unique_ptr<ST_Layer>> m_Layers{};
     std::vector<std::unique_ptr<ST_ISystem>> m_Systems{};
+
+    std::unique_ptr<Camera> m_Camera = nullptr;
 };

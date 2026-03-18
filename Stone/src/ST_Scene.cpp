@@ -7,6 +7,13 @@ ST_Layer& ST_Scene::createLayer()
     return *m_Layers.back();
 }
 
+Camera& ST_Scene::createCamera()
+{
+    m_Camera = std::make_unique<Camera>();
+
+    return *m_Camera;
+}
+
 void ST_Scene::update( float delta, const SDL_Event& event )
 {
     for (auto& layer : m_Layers)
