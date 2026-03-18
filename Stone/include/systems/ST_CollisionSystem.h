@@ -2,6 +2,7 @@
 
 #include "ST_ISystem.h"
 #include "ST_Component.h"
+#include "ST_Collision.h"
 
 class ST_CollisionSystem : public ST_ISystem
 {
@@ -27,12 +28,12 @@ public:
                 ST_Entity& entityB = collidables[j];
                 Collider& colliderB = entityB.getComponent<Collider>();
 
-                //if (Collision::AABB( colliderA, colliderB ))
-                //{
-                //    // Handle collision
-                //    CollisionEvent collisionEvent{ entityA, entityB, CollisionState::Enter };
-                //    world.getEventManager().emit( collisionEvent );
-                //}
+                if (ST_Collision::AABB( colliderA, colliderB ))
+                {
+                    // Handle collision
+                    //CollisionEvent collisionEvent{ entityA, entityB, CollisionState::Enter };
+                    //world.getEventManager().emit( collisionEvent );
+                }
             }
         }
     }
