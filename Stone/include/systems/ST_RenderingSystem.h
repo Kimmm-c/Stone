@@ -45,7 +45,8 @@ public:
                 //    sprite.src = clip.frameIndices[animation.currentFrame];
                 //}
 
-                ST_TextureManager::draw( sprite.texture, sprite.src, sprite.dest );
+                RenderContext context{ sprite.texture, &sprite.src, &sprite.dest };
+                ST_TextureManager::draw( context );
             }
         }
     }

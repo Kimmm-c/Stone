@@ -1,4 +1,6 @@
 #include "ST_Game.h"
+#include "ST_Map.h"
+#include "ST_TextureManager.h"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -11,9 +13,7 @@ ST_Game::ST_Game( const char* title, int windowWidth, int windowHeight, bool ful
     m_Time = std::make_unique<ST_Time>( frameRate );
 
     if (m_Window->exists()) {
-        m_Renderer = std::make_unique<ST_Renderer>( m_Window.get(), nullptr );
-
-        if (!m_Renderer->exists()) {
+        if (!ST_TextureManager::createRenderer( *m_Window.get() ).getNativeRenderer()) {
             SDL_LogError( SDL_LOG_PRIORITY_ERROR, SDL_GetError() );
             return;
         }
@@ -37,8 +37,8 @@ void ST_Game::init()
     player.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     player.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 100.0f );
 
-    //SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\mario.png" );
-    SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp-projects\\Stone\\Stone\\assets\\mario.png" );
+    SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\mario.png" );
+    //SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp-projects\\Stone\\Stone\\assets\\mario.png" );
     SDL_FRect playerSrc{ 0, 0, 32,32 };
     SDL_FRect playerDst{ 0, 0, 64, 64 };
     player.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
@@ -52,6 +52,10 @@ void ST_Game::init()
 
     ST_Entity& cameraEntity = midground.createEntity();
     cameraEntity.addComponent<Camera>( camera );
+
+    ST_Map map;
+    map.load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\maps\\map2.tmx"
+              , ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\spritesheet.png" ) );
 }
 
 void ST_Game::run()
@@ -85,7 +89,7 @@ void ST_Game::update( float delta )
 
 void ST_Game::render()
 {
-    SDL_RenderClear( m_Renderer->getNativeRenderer() );
+    SDL_RenderClear( ST_TextureManager::getRenderer()->getNativeRenderer() );
     m_SceneManager->render();
-    SDL_RenderPresent( m_Renderer->getNativeRenderer() );
+    SDL_RenderPresent( ST_TextureManager::getRenderer()->getNativeRenderer() );
 }

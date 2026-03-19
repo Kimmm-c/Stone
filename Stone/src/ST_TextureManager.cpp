@@ -1,16 +1,21 @@
 #include "ST_TextureManager.h"
-#include "ST_Game.h"
+#include "ST_Window.h"
 
-// Use extern to access the global game object. This avoid circular dependency between Game and TextureManager.
-extern ST_Game* game;
+std::unordered_map<std::string, SDL_Texture*> ST_TextureManager::m_TextureMap;
+std::unique_ptr<ST_Renderer> ST_TextureManager::m_Renderer;
 
-std::unordered_map<std::string, SDL_Texture*> ST_TextureManager::textureMap;
+ST_Renderer& ST_TextureManager::createRenderer( const ST_Window& window )
+{
+    m_Renderer = std::make_unique<ST_Renderer>( window.getNativeWindow() );
+
+    return *m_Renderer.get();
+}
 
 SDL_Texture* ST_TextureManager::load( const char* path )
 {
     // Check if texture is already loaded
-    auto it = textureMap.find( path );
-    if (it != textureMap.end()) {
+    auto it = m_TextureMap.find( path );
+    if (it != m_TextureMap.end()) {
         return it->second;
     }
 
@@ -23,7 +28,7 @@ SDL_Texture* ST_TextureManager::load( const char* path )
         return nullptr;
     }
 
-    SDL_Texture* tex = SDL_CreateTextureFromSurface( game->getRenderer()->getNativeRenderer(), tempSurface );
+    SDL_Texture* tex = SDL_CreateTextureFromSurface( m_Renderer->getNativeRenderer(), tempSurface );
     SDL_DestroySurface( tempSurface );
 
     if (!tex) {
@@ -31,24 +36,24 @@ SDL_Texture* ST_TextureManager::load( const char* path )
         return nullptr;
     }
     else {
-        textureMap[path] = tex;
+        m_TextureMap[path] = tex;
     }
 
     return tex;
 }
 
 // FRect is used for floating point rectangle (x, y, w, h)
-void ST_TextureManager::draw( SDL_Texture* tex, SDL_FRect src, SDL_FRect destS )
+void ST_TextureManager::draw( const RenderContext& context )
 {
-    SDL_RenderTexture( game->getRenderer()->getNativeRenderer(), tex, &src, &destS );
+    SDL_RenderTexture( m_Renderer->getNativeRenderer(), context.texture, context.src, context.dest );
 }
 
 void ST_TextureManager::clean()
 {
-    for (auto& pair : textureMap) {
+    for (auto& pair : m_TextureMap) {
         SDL_DestroyTexture( pair.second );
         pair.second = nullptr;
     }
 
-    textureMap.clear();
+    m_TextureMap.clear();
 }

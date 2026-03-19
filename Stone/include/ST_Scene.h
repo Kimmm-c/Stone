@@ -6,6 +6,8 @@
 #include "ST_Layer.h"
 #include "ST_ISystem.h"
 
+class ST_Renderer;
+
 class ST_Scene
 {
 public:

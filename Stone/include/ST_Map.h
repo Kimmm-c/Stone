@@ -13,7 +13,7 @@ public:
     ~ST_Map() = default;
 
     void load( const char* path, SDL_Texture* texture );
-    void draw( const Camera& camera );
+    //void draw( const Camera& camera );
 
     inline std::vector<Collider>& getColliders()
     {

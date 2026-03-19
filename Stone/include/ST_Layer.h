@@ -8,6 +8,8 @@
 #include "ST_RenderingSystem.h"
 #include "ST_ISystem.h"
 
+class ST_Renderer;
+
 class ST_Layer
 {
 public:

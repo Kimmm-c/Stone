@@ -5,3 +5,8 @@ ST_Renderer::ST_Renderer( ST_Window* window, const char* name )
 {
     m_NativeRenderer = SDL_CreateRenderer( window->getNativeWindow(), name );
 }
+
+ST_Renderer::ST_Renderer( SDL_Window* window, const char* name )
+{
+    m_NativeRenderer = SDL_CreateRenderer( window, name );
+}

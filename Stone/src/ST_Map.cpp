@@ -74,53 +74,53 @@ void ST_Map::load( const char* path, SDL_Texture* texture )
     }
 }
 
-void ST_Map::draw( const Camera& camera )
-{
-    SDL_FRect src{}, dest{};
-
-    dest.w = dest.h = 32;
-
-    int type = 0;
-
-    for (int row = 0; row < m_Height; row++)
-    {
-        for (int col = 0; col < m_Width; col++)
-        {
-            type = m_TileMap[row][col];
-
-            float worldX = static_cast<float>( col ) * dest.w;
-            float worldY = static_cast<float>( row ) * dest.h;
-
-            dest.x = std::round( worldX - camera.view.x );
-            dest.y = std::round( worldY - camera.view.y );
-
-            switch (type)
-            {
-            case 1:
-                // dirt
-                src.x = 0;
-                src.y = 0;
-                src.w = 32;
-                src.h = 32;
-                break;
-            case 2:
-                // grass
-                src.x = 32;
-                src.y = 0;
-                src.w = 32;
-                src.h = 32;
-                break;
-            case 4:
-                src.x = 32;
-                src.y = 32;
-                src.w = 32;
-                src.h = 32;
-                break;
-            default:
-                break;
-            }
-
-            ST_TextureManager::draw( m_TileSet, src, dest );
-        }
-    }
-}
+//void ST_Map::draw( const Camera& camera )
+//{
+//    SDL_FRect src{}, dest{};
+//
+//    dest.w = dest.h = 32;
+//
+//    int type = 0;
+//
+//    for (int row = 0; row < m_Height; row++)
+//    {
+//        for (int col = 0; col < m_Width; col++)
+//        {
+//            type = m_TileMap[row][col];
+//
+//            float worldX = static_cast<float>( col ) * dest.w;
+//            float worldY = static_cast<float>( row ) * dest.h;
+//
+//            dest.x = std::round( worldX - camera.view.x );
+//            dest.y = std::round( worldY - camera.view.y );
+//
+//            switch (type)
+//            {
+//            case 1:
+//                // dirt
+//                src.x = 0;
+//                src.y = 0;
+//                src.w = 32;
+//                src.h = 32;
+//                break;
+//            case 2:
+//                // grass
+//                src.x = 32;
+//                src.y = 0;
+//                src.w = 32;
+//                src.h = 32;
+//                break;
+//            case 4:
+//                src.x = 32;
+//                src.y = 32;
+//                src.w = 32;
+//                src.h = 32;
+//                break;
+//            default:
+//                break;
+//            }
+//
+//            ST_TextureManager::draw( m_TileSet, src, dest );
+//        }
+//    }
+//}

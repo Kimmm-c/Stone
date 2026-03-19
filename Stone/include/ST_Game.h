@@ -16,8 +16,6 @@ public:
     void init();
     void run();
 
-    inline ST_Renderer* getRenderer() { return m_Renderer.get(); }
-
 private:
     void processInput();
     void update( float delta );
@@ -31,6 +29,5 @@ private:
     std::unique_ptr<ST_SceneManager> m_SceneManager = std::make_unique<ST_SceneManager>();
 
     std::unique_ptr<ST_Window> m_Window = nullptr;
-    std::unique_ptr<ST_Renderer> m_Renderer = nullptr;
     std::unique_ptr<ST_Time> m_Time = nullptr;
 };
