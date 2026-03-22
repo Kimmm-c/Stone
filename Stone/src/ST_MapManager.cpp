@@ -8,25 +8,25 @@
 std::unordered_map<std::string, std::unique_ptr<tinyxml2::XMLDocument>> ST_MapManager::m_PathToMap;
 
 
-int ST_MapManager::loadMap( const ST_MapContext& context, SDL_Texture* texture )
+int ST_MapManager::loadMap( const ST_MapContext& mapContext, const ST_SpriteSheetContext& spriteSheetContext )
 {
     // Return if map has been loaded already
-    if (m_PathToMap.find( context.path ) != m_PathToMap.end())
+    if (m_PathToMap.find( mapContext.path ) != m_PathToMap.end())
         return 1;
 
     // Load and register map
-    if (ST_MapManager::registerMap( context ) < 0) {
+    if (ST_MapManager::registerMap( mapContext ) < 0) {
         SDL_Log( "Failed to load XLM document" );
         return -1;
     }
 
-    if (ST_MapManager::loadTiles( context, texture ) < 0) {
+    if (ST_MapManager::loadTiles( mapContext, spriteSheetContext ) < 0) {
         SDL_Log( "Failed to load map tiles!" );
         return -1;
     }
 
-    if (context.hasColliders) {
-        if (ST_MapManager::loadColliders( context ) < 0) {
+    if (mapContext.hasColliders) {
+        if (ST_MapManager::loadColliders( mapContext ) < 0) {
             SDL_Log( "Failed to load collider!" );
             return -1;
         }
@@ -79,11 +79,10 @@ int ST_MapManager::loadColliders( const ST_MapContext& context )
                 mapColliderComp.rect = collider.rect;
 
                 // visualize the collider
-                //SDL_Texture* colliderTexture = ST_TextureManager::load( "C:\\projects\\cpp-projects\\advanced-game-architecture\\advanced-game-architecture\\assets\\spritesheet.png" );
-                SDL_Texture* colliderTexture = ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\spritesheet.png" );
-                SDL_FRect colliderSrc{ 0, 32, 32, 32 };
-                SDL_FRect collerDest{ collider.rect.x, collider.rect.y, collider.rect.w, collider.rect.h };
-                mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, collerDest );
+                //SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+                //SDL_FRect colliderSrc{ 0, 32, 32, 32 };
+                //SDL_FRect collerDest{ collider.rect.x, collider.rect.y, collider.rect.w, collider.rect.h };
+                //mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, collerDest );
             }
         }
 
@@ -106,10 +105,10 @@ int ST_MapManager::registerMap( const ST_MapContext& context )
     return 1;
 }
 
-int ST_MapManager::loadTiles( const ST_MapContext& context, SDL_Texture* texture )
+int ST_MapManager::loadTiles( const ST_MapContext& mapContext, const ST_SpriteSheetContext& spriteSheetContext )
 {
     // Create entities with visual representation
-    auto it = m_PathToMap.find( context.path );
+    auto it = m_PathToMap.find( mapContext.path );
     tinyxml2::XMLElement* mapNode = it->second->FirstChildElement( "map" );
 
     int mapWidth = mapNode->IntAttribute( "width" );
@@ -134,20 +133,20 @@ int ST_MapManager::loadTiles( const ST_MapContext& context, SDL_Texture* texture
             }
 
             // Create entity
-            ST_Entity& tileEntity = context.parentLayer.createEntity();
+            ST_Entity& tileEntity = mapContext.parentLayer.createEntity();
 
             // Set up Sprite component for each tile
             Sprite sprite;
-            sprite.texture = texture;
-            sprite.src.w = sprite.dest.w = context.tileWidth;
-            sprite.src.h = sprite.dest.h = context.tileHeight;
+            sprite.texture = spriteSheetContext.texture;
+            sprite.src.w = sprite.dest.w = mapContext.tileWidth;
+            sprite.src.h = sprite.dest.h = mapContext.tileHeight;
 
             int textureIndex = std::stoi( tile ) - 1;
-            int colIndex = textureIndex % mapWidth;
-            int rowIndex = textureIndex / mapWidth;
+            int colIndex = textureIndex % spriteSheetContext.sheetWidth;
+            int rowIndex = textureIndex / spriteSheetContext.sheetWidth;
 
-            sprite.src.x = colIndex * context.tileWidth;
-            sprite.src.y = rowIndex * context.tileHeight;
+            sprite.src.x = colIndex * mapContext.tileWidth;
+            sprite.src.y = rowIndex * mapContext.tileHeight;
 
             tileEntity.addComponent<Sprite>( sprite );
             tileEntity.addComponent<MapTile>( row, col );

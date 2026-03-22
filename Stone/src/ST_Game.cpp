@@ -33,12 +33,18 @@ void ST_Game::init()
     ST_Scene& gameplayScene = m_SceneManager->loadScene( "gameplay", true );
     ST_Layer& background = gameplayScene.createLayer();
 
-    ST_MapManager::loadMap( { assetPath + "maps/background.tmx", 32, 32, false, background }
-    , ST_TextureManager::load( assetPath + "spritesheet.png" ) );
+    //ST_MapManager::loadMap
+    //(
+    //    { assetPath + "maps/background.tmx", 32, 32, false, background }
+    //    , { ST_TextureManager::load( assetPath + "spritesheet.png" ), 2, 2 }
+    //);
 
     ST_Layer& midground = gameplayScene.createLayer();
-    ST_MapManager::loadMap( { assetPath + "maps/midground.tmx", 32, 32, true, midground }
-    , ST_TextureManager::load( assetPath + "spritesheet.png" ) );
+    ST_MapManager::loadMap
+    (
+        { assetPath + "maps/midground.tmx", 32, 32, true, midground }
+        , { ST_TextureManager::load( assetPath + "spritesheet.png" ), 2, 2 }
+    );
 
     // create player
     ST_Entity& player = midground.createEntity();

@@ -8,6 +8,7 @@
 #include "ST_Component.h"
 
 class ST_Layer;
+class SDL_Texture;
 
 struct ST_MapContext
 {
@@ -21,17 +22,25 @@ struct ST_MapContext
     ST_Layer& parentLayer;
 };
 
+struct ST_SpriteSheetContext
+{
+    SDL_Texture* texture;
+
+    int sheetWidth;     // measured by the number of columns
+    int sheetHeight;    // measured by the number of rows
+};
+
 class ST_MapManager
 {
 public:
     ST_MapManager() = default;
     ~ST_MapManager() = default;
 
-    static int loadMap( const ST_MapContext& context, SDL_Texture* texture );
+    static int loadMap( const ST_MapContext& mapContext, const ST_SpriteSheetContext& spriteSheetContext );
 
 private:
     static int registerMap( const ST_MapContext& context );
-    static int loadTiles( const ST_MapContext& context, SDL_Texture* texture );
+    static int loadTiles( const ST_MapContext& mapContext, const ST_SpriteSheetContext& spriteSheetContext );
     static int loadColliders( const ST_MapContext& context );
 
 private:
