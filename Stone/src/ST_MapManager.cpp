@@ -94,7 +94,7 @@ int ST_MapManager::loadColliders( const ST_MapContext& context )
 int ST_MapManager::registerMap( const ST_MapContext& context )
 {
     std::unique_ptr<tinyxml2::XMLDocument> mapDocument = std::make_unique<tinyxml2::XMLDocument>();
-    tinyxml2::XMLError isLoaded = mapDocument->LoadFile( context.path );
+    tinyxml2::XMLError isLoaded = mapDocument->LoadFile( context.path.c_str() );
 
     if (isLoaded != tinyxml2::XML_SUCCESS) {
         SDL_Log( mapDocument->ErrorStr() );

@@ -11,7 +11,7 @@ class ST_Layer;
 
 struct ST_MapContext
 {
-    const char* path;
+    std::string path;
 
     int tileWidth;
     int tileHeight;

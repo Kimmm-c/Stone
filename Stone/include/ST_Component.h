@@ -71,8 +71,8 @@ struct SceneState
 
 struct MapTile
 {
-    int row{};
-    int col{};
+    int row{};  // Row index of the tile in the 2D map matrix
+    int col{};  // Col index of the tile in the 2D map matrix
 };
 
 

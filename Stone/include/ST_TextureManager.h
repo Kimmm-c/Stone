@@ -21,6 +21,7 @@ public:
     static ST_Renderer& createRenderer( const ST_Window& window );
 
     static SDL_Texture* load( const char* path );
+    static SDL_Texture* load( const std::string& path );
 
     static void draw( const RenderContext& context );
 

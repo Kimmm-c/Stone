@@ -6,6 +6,7 @@
 #include <iostream>
 
 static SDL_Event event; // Initialized only once and accessible within this file only
+static std::string assetPath = std::string( ASSET_PATH );
 
 ST_Game::ST_Game( const char* title, int windowWidth, int windowHeight, bool fullScreen, uint32_t frameRate )
 {
@@ -31,15 +32,20 @@ void ST_Game::init()
     // create a scene
     ST_Scene& gameplayScene = m_SceneManager->loadScene( "gameplay", true );
     ST_Layer& background = gameplayScene.createLayer();
+
+    ST_MapManager::loadMap( { assetPath + "maps/background.tmx", 32, 32, false, background }
+    , ST_TextureManager::load( assetPath + "spritesheet.png" ) );
+
     ST_Layer& midground = gameplayScene.createLayer();
+    ST_MapManager::loadMap( { assetPath + "maps/midground.tmx", 32, 32, true, midground }
+    , ST_TextureManager::load( assetPath + "spritesheet.png" ) );
 
     // create player
     ST_Entity& player = midground.createEntity();
     player.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     player.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 100.0f );
 
-    SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\mario.png" );
-    //SDL_Texture* playerTexture = ST_TextureManager::load( "C:\\projects\\cpp-projects\\Stone\\Stone\\assets\\mario.png" );
+    SDL_Texture* playerTexture = ST_TextureManager::load( assetPath + "mario.png" );
     SDL_FRect playerSrc{ 0, 0, 32,32 };
     SDL_FRect playerDst{ 0, 0, 64, 64 };
     player.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
@@ -49,9 +55,6 @@ void ST_Game::init()
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
     camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
-
-    ST_MapManager::loadMap( { "C:\\projects\\cpp\\Stone\\Stone\\assets\\maps\\map2.tmx", 32, 32, true, background }
-    , ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\spritesheet.png" ) );
 
     SDL_Log( "do something" );
 }

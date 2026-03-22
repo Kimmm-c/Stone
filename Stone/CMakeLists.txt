@@ -49,6 +49,11 @@ add_custom_command(TARGET Stone POST_BUILD
         $<TARGET_FILE_DIR:Stone>
 )
 
+# Set Paths
+target_compile_definitions(Stone PRIVATE
+    ASSET_PATH="${CMAKE_SOURCE_DIR}/Stone/assets/"
+)
+
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Stone PROPERTY CXX_STANDARD 20)
 endif()

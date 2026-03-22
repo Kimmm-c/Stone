@@ -11,6 +11,11 @@ ST_Renderer& ST_TextureManager::createRenderer( const ST_Window& window )
     return *m_Renderer.get();
 }
 
+SDL_Texture* ST_TextureManager::load( const std::string& path )
+{
+    return ST_TextureManager::load( path.c_str() );
+}
+
 SDL_Texture* ST_TextureManager::load( const char* path )
 {
     // Check if texture is already loaded
