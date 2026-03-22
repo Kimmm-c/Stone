@@ -12,9 +12,10 @@ void ST_Layer::update( float delta, const SDL_Event& event )
     cleanup();
 }
 
-void ST_Layer::render()
+void ST_Layer::render( Camera* camera )
 {
-    m_RenderingSystem.render( m_Entities );
+    if (camera)
+        m_RenderingSystem.render( m_Entities, camera );
 }
 
 void ST_Layer::cleanup()

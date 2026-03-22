@@ -69,13 +69,10 @@ struct SceneState
     int coinsCollected = 0;
 };
 
-struct Terrain
+struct MapTile
 {
-    int width{};
-    int heigth{};
-
-    // 1 = solid, 0 = empty
-    std::vector<std::vector<int>> grid{};
+    int row{};
+    int col{};
 };
 
 

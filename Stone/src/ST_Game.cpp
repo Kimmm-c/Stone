@@ -1,6 +1,6 @@
 #include "ST_Game.h"
-#include "ST_Map.h"
 #include "ST_TextureManager.h"
+#include "ST_MapManager.h"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -30,6 +30,7 @@ void ST_Game::init()
 {
     // create a scene
     ST_Scene& gameplayScene = m_SceneManager->loadScene( "gameplay", true );
+    ST_Layer& background = gameplayScene.createLayer();
     ST_Layer& midground = gameplayScene.createLayer();
 
     // create player
@@ -49,13 +50,10 @@ void ST_Game::init()
     camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
 
+    ST_MapManager::loadMap( { "C:\\projects\\cpp\\Stone\\Stone\\assets\\maps\\map2.tmx", 32, 32, background }
+    , ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\spritesheet.png" ) );
 
-    ST_Entity& cameraEntity = midground.createEntity();
-    cameraEntity.addComponent<Camera>( camera );
-
-    ST_Map map;
-    map.load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\maps\\map2.tmx"
-              , ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\spritesheet.png" ) );
+    SDL_Log( "do something" );
 }
 
 void ST_Game::run()

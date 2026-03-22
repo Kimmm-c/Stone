@@ -9,6 +9,7 @@
 #include "ST_ISystem.h"
 
 class ST_Renderer;
+class Camera;
 
 class ST_Layer
 {
@@ -18,7 +19,7 @@ public:
 
     ST_Entity& createEntity();
     void update( float delta, const SDL_Event& event );
-    void render();
+    void render( Camera* camera = nullptr );
     void cleanup();
 
     inline std::vector<std::unique_ptr<ST_Entity>>& getEntities() { return m_Entities; }

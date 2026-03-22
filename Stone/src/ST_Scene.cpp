@@ -23,5 +23,5 @@ void ST_Scene::update( float delta, const SDL_Event& event )
 void ST_Scene::render()
 {
     for (auto& layer : m_Layers)
-        layer->render();
+        layer->render( m_Camera.get() );
 }
