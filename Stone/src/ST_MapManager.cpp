@@ -79,10 +79,10 @@ int ST_MapManager::loadColliders( const ST_MapContext& context )
                 mapColliderComp.rect = collider.rect;
 
                 // visualize the collider
-                //SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
-                //SDL_FRect colliderSrc{ 0, 32, 32, 32 };
-                //SDL_FRect collerDest{ collider.rect.x, collider.rect.y, collider.rect.w, collider.rect.h };
-                //mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, collerDest );
+                SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+                SDL_FRect colliderSrc{ 0, 32, 32, 32 };
+                SDL_FRect collerDest{ collider.rect.x, collider.rect.y, collider.rect.w, collider.rect.h };
+                mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, collerDest );
             }
         }
 
@@ -132,24 +132,29 @@ int ST_MapManager::loadTiles( const ST_MapContext& mapContext, const ST_SpriteSh
                 break;
             }
 
-            // Create entity
-            ST_Entity& tileEntity = mapContext.parentLayer.createEntity();
-
-            // Set up Sprite component for each tile
-            Sprite sprite;
-            sprite.texture = spriteSheetContext.texture;
-            sprite.src.w = sprite.dest.w = mapContext.tileWidth;
-            sprite.src.h = sprite.dest.h = mapContext.tileHeight;
 
             int textureIndex = std::stoi( tile ) - 1;
-            int colIndex = textureIndex % spriteSheetContext.sheetWidth;
-            int rowIndex = textureIndex / spriteSheetContext.sheetWidth;
 
-            sprite.src.x = colIndex * mapContext.tileWidth;
-            sprite.src.y = rowIndex * mapContext.tileHeight;
+            // Texture index smaller than zero means the there's no tile in this cell
+            if (textureIndex >= 0) {
+                // Create entity
+                ST_Entity& tileEntity = mapContext.parentLayer.createEntity();
 
-            tileEntity.addComponent<Sprite>( sprite );
-            tileEntity.addComponent<MapTile>( row, col );
+                // Set up Sprite component for each tile
+                Sprite sprite;
+                sprite.texture = spriteSheetContext.texture;
+                sprite.src.w = sprite.dest.w = mapContext.tileWidth;
+                sprite.src.h = sprite.dest.h = mapContext.tileHeight;
+
+                int colIndex = textureIndex % spriteSheetContext.sheetWidth;
+                int rowIndex = textureIndex / spriteSheetContext.sheetWidth;
+
+                sprite.src.x = colIndex * mapContext.tileWidth;
+                sprite.src.y = rowIndex * mapContext.tileHeight;
+
+                tileEntity.addComponent<Sprite>( sprite );
+                tileEntity.addComponent<MapTile>( row, col );
+            }
         }
     }
 
