@@ -50,7 +50,7 @@ void ST_Game::init()
     camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
 
-    ST_MapManager::loadMap( { "C:\\projects\\cpp\\Stone\\Stone\\assets\\maps\\map2.tmx", 32, 32, background }
+    ST_MapManager::loadMap( { "C:\\projects\\cpp\\Stone\\Stone\\assets\\maps\\map2.tmx", 32, 32, true, background }
     , ST_TextureManager::load( "C:\\projects\\cpp\\Stone\\Stone\\assets\\spritesheet.png" ) );
 
     SDL_Log( "do something" );
