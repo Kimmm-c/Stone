@@ -1,6 +1,8 @@
 #include "ST_Game.h"
 #include "ST_TextureManager.h"
 #include "ST_MapManager.h"
+#include "ST_PhysicsSystem.h"
+#include "ST_CollisionSystem.h"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -63,6 +65,12 @@ void ST_Game::init()
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
 
     SDL_Log( "do something" );
+
+    // Set up systems
+    gameplayScene.addSystem<ST_PhysicsSystem>();
+    //gameplayScene.addSystem<ST_CollisionSystem>();
+    gameplayScene.registerLayer<ST_PhysicsSystem>( midground );
+    //gameplayScene.registerLayer<ST_CollisionSystem>( midground );
 }
 
 void ST_Game::run()

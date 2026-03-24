@@ -22,7 +22,7 @@ public:
         return *it->second;
     }
 
-    void update( float delta, const SDL_Event& event )
+    void update( float delta, SDL_Event& event )
     {
         if (m_CurrentScene) m_CurrentScene->update( delta, event );
     }

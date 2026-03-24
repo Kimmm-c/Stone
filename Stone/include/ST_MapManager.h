@@ -20,6 +20,8 @@ struct ST_MapContext
     bool hasColliders = false;
 
     ST_Layer& parentLayer;
+
+    std::string colliderTag;
 };
 
 struct ST_SpriteSheetContext

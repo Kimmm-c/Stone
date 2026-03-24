@@ -25,10 +25,94 @@ int ST_MapManager::loadMap( const ST_MapContext& mapContext, const ST_SpriteShee
         return -1;
     }
 
-    if (mapContext.hasColliders) {
-        if (ST_MapManager::loadColliders( mapContext ) < 0) {
-            SDL_Log( "Failed to load collider!" );
-            return -1;
+    return 1;
+}
+
+int ST_MapManager::registerMap( const ST_MapContext& context )
+{
+    std::unique_ptr<tinyxml2::XMLDocument> mapDocument = std::make_unique<tinyxml2::XMLDocument>();
+    tinyxml2::XMLError isLoaded = mapDocument->LoadFile( context.path.c_str() );
+
+    if (isLoaded != tinyxml2::XML_SUCCESS) {
+        SDL_Log( mapDocument->ErrorStr() );
+        return -1;
+    }
+
+    m_PathToMap[context.path] = std::move( mapDocument );
+
+    return 1;
+}
+
+int ST_MapManager::loadTiles( const ST_MapContext& mapContext, const ST_SpriteSheetContext& spriteSheetContext )
+{
+    // Create entities with visual representation
+    auto it = m_PathToMap.find( mapContext.path );
+    tinyxml2::XMLElement* mapNode = it->second->FirstChildElement( "map" );
+
+    int mapWidth = mapNode->IntAttribute( "width" );
+    int mapHeight = mapNode->IntAttribute( "height" );
+
+    tinyxml2::XMLElement* layerNode = mapNode->FirstChildElement( "layer" );
+    tinyxml2::XMLElement* dataNode = layerNode->FirstChildElement( "data" );
+
+    std::string csv = dataNode->GetText();
+    std::stringstream ss( csv );
+
+    // Read the CSV data into the tileMap
+    std::string tile;
+    for (int row = 0; row < mapHeight; row++)
+    {
+        for (int col = 0; col < mapWidth; col++)
+        {
+            if (!std::getline( ss, tile, ',' ))
+            {
+                // Handle error: not enough tiles in the CSV
+                break;
+            }
+
+            int textureIndex = std::stoi( tile ) - 1;
+
+            // Texture index smaller than zero means the there's no tile in this cell
+            if (textureIndex >= 0) {
+                // Create entity
+                ST_Entity& tileEntity = mapContext.parentLayer.createEntity();
+
+                // Set up Sprite component for each tile
+                Sprite sprite;
+                sprite.texture = spriteSheetContext.texture;
+                sprite.src.w = sprite.dest.w = mapContext.tileWidth;
+                sprite.src.h = sprite.dest.h = mapContext.tileHeight;
+
+                // Get the row and column indices of the texture in the sprite sheet
+                int colIndex = textureIndex % spriteSheetContext.sheetWidth;
+                int rowIndex = textureIndex / spriteSheetContext.sheetWidth;
+
+                sprite.src.x = colIndex * mapContext.tileWidth;
+                sprite.src.y = rowIndex * mapContext.tileHeight;
+
+                sprite.dest.x = col * mapContext.tileWidth;
+                sprite.dest.y = row * mapContext.tileHeight;
+
+                tileEntity.addComponent<Sprite>( sprite );
+                tileEntity.addComponent<MapTile>( row, col );
+
+                // Create collider for each tile
+                if (mapContext.hasColliders) {
+                    ST_Entity& mapCollider = mapContext.parentLayer.createEntity();
+
+                    Transform transform = Transform( ST_Vector2D( sprite.dest.x, sprite.dest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+                    mapCollider.addComponent<Transform>( transform );
+                    Collider& mapColliderComp = mapCollider.addComponent<Collider>( mapContext.colliderTag );
+                    mapColliderComp.rect = sprite.dest;
+                    mapCollider.addComponent<MapTile>( row, col );
+
+                    // visualize the collider
+                    SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+                    SDL_FRect colliderSrc{ 0, 32, 32, 32 };
+                    SDL_FRect colliderDest{ sprite.dest.x, sprite.dest.y, sprite.dest.w, sprite.dest.h };
+                    mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, colliderDest );
+                }
+            }
         }
     }
 
@@ -88,75 +172,4 @@ int ST_MapManager::loadColliders( const ST_MapContext& context )
 
         objectGroupNode = objectGroupNode->NextSiblingElement( "objectgroup" );
     }
-}
-
-int ST_MapManager::registerMap( const ST_MapContext& context )
-{
-    std::unique_ptr<tinyxml2::XMLDocument> mapDocument = std::make_unique<tinyxml2::XMLDocument>();
-    tinyxml2::XMLError isLoaded = mapDocument->LoadFile( context.path.c_str() );
-
-    if (isLoaded != tinyxml2::XML_SUCCESS) {
-        SDL_Log( mapDocument->ErrorStr() );
-        return -1;
-    }
-
-    m_PathToMap[context.path] = std::move( mapDocument );
-
-    return 1;
-}
-
-int ST_MapManager::loadTiles( const ST_MapContext& mapContext, const ST_SpriteSheetContext& spriteSheetContext )
-{
-    // Create entities with visual representation
-    auto it = m_PathToMap.find( mapContext.path );
-    tinyxml2::XMLElement* mapNode = it->second->FirstChildElement( "map" );
-
-    int mapWidth = mapNode->IntAttribute( "width" );
-    int mapHeight = mapNode->IntAttribute( "height" );
-
-    tinyxml2::XMLElement* layerNode = mapNode->FirstChildElement( "layer" );
-    tinyxml2::XMLElement* dataNode = layerNode->FirstChildElement( "data" );
-
-    std::string csv = dataNode->GetText();
-    std::stringstream ss( csv );
-
-    // Read the CSV data into the tileMap
-    std::string tile;
-    for (int row = 0; row < mapHeight; row++)
-    {
-        for (int col = 0; col < mapWidth; col++)
-        {
-            if (!std::getline( ss, tile, ',' ))
-            {
-                // Handle error: not enough tiles in the CSV
-                break;
-            }
-
-
-            int textureIndex = std::stoi( tile ) - 1;
-
-            // Texture index smaller than zero means the there's no tile in this cell
-            if (textureIndex >= 0) {
-                // Create entity
-                ST_Entity& tileEntity = mapContext.parentLayer.createEntity();
-
-                // Set up Sprite component for each tile
-                Sprite sprite;
-                sprite.texture = spriteSheetContext.texture;
-                sprite.src.w = sprite.dest.w = mapContext.tileWidth;
-                sprite.src.h = sprite.dest.h = mapContext.tileHeight;
-
-                int colIndex = textureIndex % spriteSheetContext.sheetWidth;
-                int rowIndex = textureIndex / spriteSheetContext.sheetWidth;
-
-                sprite.src.x = colIndex * mapContext.tileWidth;
-                sprite.src.y = rowIndex * mapContext.tileHeight;
-
-                tileEntity.addComponent<Sprite>( sprite );
-                tileEntity.addComponent<MapTile>( row, col );
-            }
-        }
-    }
-
-    return 1;
 }

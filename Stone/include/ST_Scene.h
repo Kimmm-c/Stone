@@ -5,6 +5,7 @@
 
 #include "ST_Layer.h"
 #include "ST_ISystem.h"
+#include "ST_SystemManager.h"
 
 class ST_Renderer;
 
@@ -23,11 +24,22 @@ public:
     ST_Layer& createLayer();
     Camera& createCamera();
 
+    template<typename T>
+    T& addSystem()
+    {
+        return m_SystemManager->addSystem<T>();
+    }
+
+    template<typename... Systems>
+    void registerLayer( ST_Layer& layer )
+    {
+        m_SystemManager->registerLayer<Systems...>( layer );
+    }
 
     friend class ST_SceneManager;
 
 private:
-    void update( float delta, const SDL_Event& event );
+    void update( float delta, SDL_Event& event );
     void render();
 
 private:
@@ -35,7 +47,8 @@ private:
     //std::unique_ptr<SystemScheduler> m_SystemScheduler = nullptr;
 
     std::vector<std::unique_ptr<ST_Layer>> m_Layers{};
-    std::vector<std::unique_ptr<ST_ISystem>> m_Systems{};
+    std::unique_ptr<ST_SystemManager> m_SystemManager = std::make_unique<ST_SystemManager>();
+
 
     std::unique_ptr<Camera> m_Camera = nullptr;
 };

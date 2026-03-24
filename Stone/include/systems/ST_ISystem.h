@@ -6,6 +6,8 @@
 
 #include "ST_Entity.h"
 
+class ST_Layer;
+
 struct ST_SystemContext
 {
     float delta;
@@ -17,5 +19,5 @@ struct ST_SystemContext
 class ST_ISystem
 {
 public:
-    virtual void update( std::vector<std::unique_ptr<ST_Entity>>& entities, const ST_SystemContext& context ) = 0;
+    virtual void update( ST_Layer& layer, const ST_SystemContext& context ) = 0;
 };

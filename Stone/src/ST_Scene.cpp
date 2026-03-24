@@ -1,4 +1,5 @@
 #include "ST_Scene.h"
+#include "ST_SystemManager.h"
 
 ST_Layer& ST_Scene::createLayer()
 {
@@ -14,10 +15,12 @@ Camera& ST_Scene::createCamera()
     return *m_Camera;
 }
 
-void ST_Scene::update( float delta, const SDL_Event& event )
+void ST_Scene::update( float delta, SDL_Event& event )
 {
+    m_SystemManager->update( { delta, event, *m_Camera.get() } );
+
     for (auto& layer : m_Layers)
-        layer->update( delta, event );
+        layer->cleanup();
 }
 
 void ST_Scene::render()

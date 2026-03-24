@@ -2,29 +2,33 @@
 
 #include "ST_ISystem.h"
 #include "ST_Component.h"
+#include "ST_Layer.h"
 
 class ST_PhysicsSystem : public ST_ISystem
 {
 public:
-    void update( std::vector<std::unique_ptr<ST_Entity>>& entities, const ST_SystemContext& context ) override
+    void update( ST_Layer& layer, const ST_SystemContext& context ) override
     {
-        for (auto& entity : entities)
-        {
-            if (!entity->isActive()) continue;
+        SDL_Log( "physics system is called..." );
+        //auto& entities = layer.getEntities();
 
-            if (entity->hasComponent<Transform>() &&
-                 entity->hasComponent<Velocity>())
-            {
-                auto& t = entity->getComponent<Transform>();
-                auto& v = entity->getComponent<Velocity>();
+        //for (auto& entity : entities)
+        //{
+        //    if (!entity->isActive()) continue;
 
-                v.direction.y += 500.0f * context.delta;
+        //    if (entity->hasComponent<Transform>() &&
+        //         entity->hasComponent<Velocity>())
+        //    {
+        //        auto& t = entity->getComponent<Transform>();
+        //        auto& v = entity->getComponent<Velocity>();
 
-                t.oldPosition = t.position;
+        //        v.direction.y += 500.0f * context.delta;
 
-                t.position.x += v.direction.x * v.speed * context.delta;
-                t.position.y += v.direction.y * v.speed * context.delta;
-            }
-        }
+        //        t.oldPosition = t.position;
+
+        //        t.position.x += v.direction.x * v.speed * context.delta;
+        //        t.position.y += v.direction.y * v.speed * context.delta;
+        //    }
+        //}
     }
 };
