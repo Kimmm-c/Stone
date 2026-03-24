@@ -6,6 +6,7 @@
 #include "ST_Layer.h"
 #include "ST_ISystem.h"
 #include "ST_SystemManager.h"
+#include "ST_EventManager.h"
 
 class ST_Renderer;
 
@@ -44,10 +45,10 @@ private:
 
 private:
     //std::unique_ptr<ST_Registry> m_Registry = nullptr;
-    //std::unique_ptr<SystemScheduler> m_SystemScheduler = nullptr;
 
     std::vector<std::unique_ptr<ST_Layer>> m_Layers{};
     std::unique_ptr<ST_SystemManager> m_SystemManager = std::make_unique<ST_SystemManager>();
+    std::unique_ptr<ST_EventManager> m_EventManager = std::make_unique<ST_EventManager>();
 
 
     std::unique_ptr<Camera> m_Camera = nullptr;

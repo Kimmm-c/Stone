@@ -7,12 +7,14 @@
 #include "ST_Entity.h"
 
 class ST_Layer;
+class ST_EventManager;
 
 struct ST_SystemContext
 {
     float delta;
     SDL_Event& event;
-    
+    ST_EventManager& eventManager;
+
     Camera& camera;
 };
 
