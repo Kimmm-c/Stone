@@ -1,5 +1,5 @@
 #pragma once
-#if 0
+
 #include "ST_ISystem.h"
 #include "ST_Component.h"
 #include "ST_Collision.h"
@@ -39,20 +39,18 @@ public:
         //}
     }
 
-    std::vector<ST_Entity&> queryCollidables( const std::vector<std::unique_ptr<ST_Entity>>& entities )
-    {
-        std::vector<ST_Entity&> collidables;
+    //std::vector<ST_Entity&> queryCollidables( const std::vector<std::unique_ptr<ST_Entity>>& entities )
+    //{
+    //    std::vector<ST_Entity&> collidables;
 
-        for (const auto& entity : entities)
-        {
-            if (entity->hasComponent<Collider>() && entity->hasComponent<Transform>())
-            {
-                collidables.push_back( *entity );
-            }
-        }
+    //    for (const auto& entity : entities)
+    //    {
+    //        if (entity->hasComponent<Collider>() && entity->hasComponent<Transform>())
+    //        {
+    //            collidables.push_back( *entity );
+    //        }
+    //    }
 
-        return collidables;
-    }
+    //    return collidables;
+    //}
 };
-
-#endif

@@ -22,7 +22,7 @@ private:
     template<typename T>
     T& addSystem()
     {
-        auto id = getSystemTypeID();
+        auto id = getSystemTypeID<T>();
         auto system = std::make_unique<T>();
 
         m_Systems[id] = std::move( system );
@@ -30,11 +30,10 @@ private:
         return *static_cast<T*>(m_Systems[id].get());
     }
 
-    template<typename Systems>
+    template<typename... Systems>
     void registerLayer( ST_Layer& layer )
     {
-        auto id = getSystemTypeID<Systems>();
-        m_LayerBuckets[getSystemTypeID<Systems>()].insert( &layer );
+        (m_LayerBuckets[getSystemTypeID<Systems>()].insert( &layer ), ...);
     }
 
     void update( const ST_SystemContext& context )

@@ -68,9 +68,8 @@ void ST_Game::init()
 
     // Set up systems
     gameplayScene.addSystem<ST_PhysicsSystem>();
-    //gameplayScene.addSystem<ST_CollisionSystem>();
-    gameplayScene.registerLayer<ST_PhysicsSystem>( midground );
-    //gameplayScene.registerLayer<ST_CollisionSystem>( midground );
+    gameplayScene.addSystem<ST_CollisionSystem>();
+    gameplayScene.registerLayer<ST_PhysicsSystem, ST_CollisionSystem>( midground );
 }
 
 void ST_Game::run()
