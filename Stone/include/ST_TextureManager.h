@@ -13,6 +13,8 @@ struct RenderContext
     SDL_Texture* texture;
     SDL_FRect* src;
     SDL_FRect* dest;
+
+    int alphaValue = -1;
 };
 
 class ST_TextureManager

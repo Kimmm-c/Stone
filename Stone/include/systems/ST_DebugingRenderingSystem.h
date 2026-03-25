@@ -10,15 +10,28 @@
 class ST_RenderingSystem
 {
 public:
-    static void render( std::vector<std::unique_ptr<ST_Entity>>& entities, Camera* camera, bool debugMode )
+    static void render( std::vector<std::unique_ptr<ST_Entity>>& entities, Camera* camera )
     {
         for (auto& entity : entities) {
             if (!entity->isActive())
                 continue;
 
-            if (entity->hasComponent<Transform>() && entity->hasComponent<Sprite>()) {
+            if (entity->hasComponent<MapTile>() && entity->hasComponent<Overlay>()) {
+                auto& sprite = entity->getComponent<Overlay>();
+                auto& mapTile = entity->getComponent<MapTile>();
+
+                float worldX = static_cast<float>(mapTile.col) * sprite.dest.w;
+                float worldY = static_cast<float>(mapTile.row) * sprite.dest.h;
+
+                sprite.dest.x = std::round( worldX - camera->view.x );
+                sprite.dest.y = std::round( worldY - camera->view.y );
+
+                ST_TextureManager::draw( { sprite.texture, &sprite.src, &sprite.dest } );
+            }
+
+            if (entity->hasComponent<Transform>() && entity->hasComponent<Overlay>()) {
                 auto& transform = entity->getComponent<Transform>();
-                auto& sprite = entity->getComponent<Sprite>();
+                auto& sprite = entity->getComponent<Overlay>();
 
                 // Convert from world coordinates to screen coordinates
                 // by subtracting the camera's position from the entity's position
@@ -32,13 +45,8 @@ public:
                 //    sprite.src = clip.frameIndices[animation.currentFrame];
                 //}
 
-                if (debugMode) {
-
-                    ST_TextureManager::draw( { sprite.texture, &sprite.src, &sprite.dest, 130 } );
-                }
-                else {
-                    ST_TextureManager::draw( { sprite.texture, &sprite.src, &sprite.dest } );
-                }
+                RenderContext context{ sprite.texture, &sprite.src, &sprite.dest };
+                ST_TextureManager::draw( context );
             }
         }
     }
