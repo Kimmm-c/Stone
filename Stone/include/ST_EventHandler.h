@@ -17,9 +17,7 @@ inline void collisionHandler( const ST_BaseEvent& event )
         playerTransform.position = playerTransform.oldPosition;
     }
     else if (colliderA.tag == "tile" && colliderB.tag == "player") {
-        Transform& playerTransform = collision.entityA->getComponent<Transform>();
+        Transform& playerTransform = collision.entityB->getComponent<Transform>();
         playerTransform.position = playerTransform.oldPosition;
     }
-
-
 }

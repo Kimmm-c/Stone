@@ -98,19 +98,10 @@ int ST_MapManager::loadTiles( const ST_MapContext& mapContext, const ST_SpriteSh
 
                 // Create collider for each tile
                 if (mapContext.hasColliders) {
-                    ST_Entity& mapCollider = mapContext.parentLayer.createEntity();
-
                     Transform transform = Transform( ST_Vector2D( sprite.dest.x, sprite.dest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-                    mapCollider.addComponent<Transform>( transform );
-                    Collider& mapColliderComp = mapCollider.addComponent<Collider>( mapContext.colliderTag );
+                    tileEntity.addComponent<Transform>( transform );
+                    Collider& mapColliderComp = tileEntity.addComponent<Collider>( mapContext.colliderTag );
                     mapColliderComp.rect = sprite.dest;
-                    mapCollider.addComponent<MapTile>( row, col );
-
-                    // visualize the collider
-                    SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
-                    SDL_FRect colliderSrc{ 0, 32, 32, 32 };
-                    SDL_FRect colliderDest{ sprite.dest.x, sprite.dest.y, sprite.dest.w, sprite.dest.h };
-                    mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, colliderDest );
                 }
             }
         }

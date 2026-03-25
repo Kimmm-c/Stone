@@ -25,14 +25,15 @@ public:
         for (int i = 0; i < len; i++) {
             ST_Entity* entityA = collidables[i];
             Collider& colliderA = entityA->getComponent<Collider>();
+            Transform& transformA = entityA->getComponent<Transform>();
 
             for (int j = i + 1; j < len; j++) {
                 ST_Entity* entityB = collidables[j];
                 Collider& colliderB = entityB->getComponent<Collider>();
+                Transform& transformB = entityB->getComponent<Transform>();
 
                 if (ST_Collision::AABB( colliderA, colliderB ))
                 {
-                    std::string collision = colliderA.tag + colliderB.tag;
                     // Handle collision
                     context.eventManager.emit<ST_CollisionEvent>( ST_CollisionEvent( entityA, entityB, CollisionState::Enter ) );
                 }
