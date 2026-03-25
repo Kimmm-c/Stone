@@ -3,6 +3,7 @@
 #include "ST_MapManager.h"
 #include "ST_PhysicsSystem.h"
 #include "ST_CollisionSystem.h"
+#include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -44,7 +45,7 @@ void ST_Game::init()
     ST_Layer& midground = gameplayScene.createLayer();
     ST_MapManager::loadMap
     (
-        { assetPath + "maps/midground.tmx", 32, 32, true, midground }
+        { assetPath + "maps/midground.tmx", 32, 32, true, midground, "tile" }
         , { ST_TextureManager::load( assetPath + "spritesheet.png" ), 2, 2 }
     );
 
@@ -58,18 +59,25 @@ void ST_Game::init()
     SDL_FRect playerDst{ 0, 0, 64, 64 };
     player.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
 
+    Collider& playerCollider = player.addComponent<Collider>( "player" );
+    playerCollider.rect.w = 64;
+    playerCollider.rect.h = 64;
+
     // Set up camera
     Camera camera = gameplayScene.createCamera();
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
     camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
 
+    // Register event handler
+    gameplayScene.registerEventHandler<ST_CollisionEvent>( collisionHandler );
+
     SDL_Log( "do something" );
 
     // Set up systems
     gameplayScene.addSystem<ST_PhysicsSystem>();
     gameplayScene.addSystem<ST_CollisionSystem>();
-    gameplayScene.registerLayer<ST_PhysicsSystem, ST_CollisionSystem>( midground );
+    gameplayScene.registerLayer<ST_CollisionSystem, ST_PhysicsSystem>( midground );
 }
 
 void ST_Game::run()

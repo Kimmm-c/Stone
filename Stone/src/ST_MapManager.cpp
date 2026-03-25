@@ -106,11 +106,11 @@ int ST_MapManager::loadTiles( const ST_MapContext& mapContext, const ST_SpriteSh
                     mapColliderComp.rect = sprite.dest;
                     mapCollider.addComponent<MapTile>( row, col );
 
-                    //// visualize the collider
-                    //SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
-                    //SDL_FRect colliderSrc{ 0, 32, 32, 32 };
-                    //SDL_FRect colliderDest{ sprite.dest.x, sprite.dest.y, sprite.dest.w, sprite.dest.h };
-                    //mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, colliderDest );
+                    // visualize the collider
+                    SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+                    SDL_FRect colliderSrc{ 0, 32, 32, 32 };
+                    SDL_FRect colliderDest{ sprite.dest.x, sprite.dest.y, sprite.dest.w, sprite.dest.h };
+                    mapCollider.addComponent<Sprite>( colliderTexture, colliderSrc, colliderDest );
                 }
             }
         }

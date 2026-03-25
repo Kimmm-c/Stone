@@ -4,24 +4,32 @@
 #include <functional>
 
 #include "ST_BaseEvent.h"
+#include "ST_EventType.h"
+
+constexpr std::size_t MAX_EVENTS = 100;
 
 class ST_EventManager
 {
 public:
     using Handler = std::function<void( const ST_BaseEvent& )>;
 
-    void emit( const ST_BaseEvent& e ) const
+    template<typename T>
+    void emit( const ST_BaseEvent& event ) const
     {
-        for (const auto& listener : listeners) {
-            listener( e );
-        }
+        auto id = getEventTypeID<T>();
+
+        auto& handlerBucket = m_EventHandlerBuckets[id];
+
+        for (auto& handler : handlerBucket)
+            handler( event );
     }
 
+    template <typename T>
     void subscribe( const Handler& callback )
     {
-        listeners.emplace_back( callback );
+        m_EventHandlerBuckets[getEventTypeID<T>()].emplace_back( callback );
     }
 
 private:
-    std::vector<Handler> listeners;
+    std::array<std::vector<Handler>, MAX_EVENTS> m_EventHandlerBuckets;
 };

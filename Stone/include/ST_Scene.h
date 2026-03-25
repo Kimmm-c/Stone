@@ -37,6 +37,12 @@ public:
         m_SystemManager->registerLayer<Systems...>( layer );
     }
 
+    template<typename T>
+    void registerEventHandler( const ST_EventManager::Handler& handler )
+    {
+        m_EventManager->subscribe<T>( handler );
+    }
+
     friend class ST_SceneManager;
 
 private:

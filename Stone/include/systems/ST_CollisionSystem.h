@@ -34,8 +34,7 @@ public:
                 {
                     std::string collision = colliderA.tag + colliderB.tag;
                     // Handle collision
-                    ST_CollisionEvent collisionEvent{ entityA, entityB, CollisionState::Enter };
-                    context.eventManager.emit( collisionEvent );
+                    context.eventManager.emit<ST_CollisionEvent>( ST_CollisionEvent( entityA, entityB, CollisionState::Enter ) );
                 }
             }
         }
