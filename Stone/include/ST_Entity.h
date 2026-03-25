@@ -22,8 +22,8 @@ using ComponentArray = std::array<void*, MAX_COMPONENTS>;
 class ST_Entity
 {
 public:
-    inline bool isActive() const { return active; }
-    inline void destroy() { active = false; }
+    inline bool isActive() const { return m_Active; }
+    inline void destroy() { m_Active = false; }
 
     // entity.hasComponent<Position>() -> true/false
     template <typename T>
@@ -58,7 +58,7 @@ public:
     }
 
 private:
-    bool active = true;
+    bool m_Active = true;
     ComponentArray componentArray{};
     ComponentBitSet componentBitSet{};
 };

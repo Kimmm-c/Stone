@@ -23,6 +23,10 @@ void ST_Layer::cleanup()
     // erase if entity is not active
     m_Entities.erase( std::remove_if( m_Entities.begin(), m_Entities.end(),
                                       []( const std::unique_ptr<ST_Entity>& entity ) {
+
+                                          if (entity->hasComponent<PendingDestroy>())
+                                              entity->destroy();
+
                                           return !entity->isActive();
                                       } ),
                       m_Entities.end() );

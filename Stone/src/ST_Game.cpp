@@ -3,6 +3,8 @@
 #include "ST_MapManager.h"
 #include "ST_PhysicsSystem.h"
 #include "ST_CollisionSystem.h"
+#include "ST_ColliderSyncSystem.h"
+#include "ST_SpawnTimerSystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -76,8 +78,40 @@ void ST_Game::init()
 
     // Set up systems
     gameplayScene.addSystem<ST_PhysicsSystem>();
+    gameplayScene.addSystem<ST_ColliderSyncSystem>();
     gameplayScene.addSystem<ST_CollisionSystem>();
-    gameplayScene.registerLayer<ST_PhysicsSystem, ST_CollisionSystem>( midground );
+    gameplayScene.addSystem<ST_SpawnTimerSystem>();
+
+    gameplayScene.registerLayer<
+        ST_PhysicsSystem
+        , ST_ColliderSyncSystem
+        , ST_CollisionSystem
+        , ST_SpawnTimerSystem
+    >( midground );
+
+    // Set up time spawner
+    // NOTE: This is set up to test collision between projectile and map tile
+    // This should be removed when testing is completed
+    ST_Entity& spawner( midground.createEntity() );
+    Transform transform = spawner.addComponent<Transform>( ST_Vector2D( 10.0f, 0.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    spawner.addComponent<TimedSpawner>( 3.0f, [this, &midground, transform] {
+        // create the projectile
+        ST_Entity& projectile = midground.createEntity();
+        projectile.addComponent<Transform>( ST_Vector2D( transform.position.x, transform.position.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+        projectile.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 100.0f );
+
+        SDL_Texture* texture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+        SDL_FRect src{ 0, 0, 32, 32 };
+        SDL_FRect dest{ transform.position.x, transform.position.y, 64, 64 };
+        projectile.addComponent<Sprite>( texture, src, dest );
+
+        Collider collision = projectile.addComponent<Collider>( "destructiveProjectile" );
+
+        collision.rect.w = dest.w;
+        collision.rect.h = dest.h;
+
+        projectile.addComponent<DestructiveProjectileTag>();
+                                        } );
 }
 
 void ST_Game::run()

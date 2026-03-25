@@ -14,14 +14,20 @@ public:
     using Handler = std::function<void( const ST_BaseEvent& )>;
 
     template<typename T>
-    void emit( const ST_BaseEvent& event ) const
+    void emit( const ST_BaseEvent& event )
     {
+        //m_EventQueue.emplace_back(
+        //    [this, event]() {
+        //        auto id = getEventTypeID<T>();
+        //        for (auto& handler : m_EventHandlerBuckets[id])
+        //            handler( event );
+        //    }
+        //);
+
         auto id = getEventTypeID<T>();
-
-        auto& handlerBucket = m_EventHandlerBuckets[id];
-
-        for (auto& handler : handlerBucket)
+        for (auto& handler : m_EventHandlerBuckets[id])
             handler( event );
+
     }
 
     template <typename T>
@@ -30,6 +36,15 @@ public:
         m_EventHandlerBuckets[getEventTypeID<T>()].emplace_back( callback );
     }
 
+    void process()
+    {
+        for (auto& eventHandler : m_EventQueue)
+            eventHandler();
+
+        m_EventQueue.clear();
+    }
+
 private:
     std::array<std::vector<Handler>, MAX_EVENTS> m_EventHandlerBuckets;
+    std::vector<std::function<void()>> m_EventQueue;
 };

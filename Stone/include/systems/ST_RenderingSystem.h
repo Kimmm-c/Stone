@@ -13,6 +13,9 @@ public:
     static void render( std::vector<std::unique_ptr<ST_Entity>>& entities, Camera* camera )
     {
         for (auto& entity : entities) {
+            if (!entity->isActive())
+                continue;
+
             if (entity->hasComponent<MapTile>() && entity->hasComponent<Sprite>()) {
                 auto& sprite = entity->getComponent<Sprite>();
                 auto& mapTile = entity->getComponent<MapTile>();

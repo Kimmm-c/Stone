@@ -19,6 +19,8 @@ void ST_Scene::update( float delta, SDL_Event& event )
 {
     m_SystemManager->update( { delta, event, *m_EventManager.get(), *m_Camera.get() } );
 
+    m_EventManager->process();
+
     for (auto& layer : m_Layers)
         layer->cleanup();
 }

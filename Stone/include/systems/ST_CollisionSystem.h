@@ -15,26 +15,25 @@ public:
 
         // Update all collider positions
         int len = collidables.size();
-        for (auto& entity : collidables) {
-            Transform& transform = entity->getComponent<Transform>();
-            Collider& collider = entity->getComponent<Collider>();
-            collider.rect.x = transform.position.x;
-            collider.rect.y = transform.position.y;
-        }
 
         for (int i = 0; i < len; i++) {
             ST_Entity* entityA = collidables[i];
+
+            if (!entityA->isActive())
+                continue;
+
             Collider& colliderA = entityA->getComponent<Collider>();
-            Transform& transformA = entityA->getComponent<Transform>();
 
             for (int j = i + 1; j < len; j++) {
                 ST_Entity* entityB = collidables[j];
+
+                if (!entityB->isActive())
+                    continue;
+
                 Collider& colliderB = entityB->getComponent<Collider>();
-                Transform& transformB = entityB->getComponent<Transform>();
 
                 if (ST_Collision::AABB( colliderA, colliderB ))
                 {
-                    // Handle collision
                     context.eventManager.emit<ST_CollisionEvent>( ST_CollisionEvent( entityA, entityB, CollisionState::Enter ) );
                 }
             }
@@ -47,7 +46,9 @@ public:
 
         for (const auto& entity : entities)
         {
-            if (entity->hasComponent<Collider>() && entity->hasComponent<Transform>())
+            if (entity->hasComponent<Collider>()
+                 && entity->hasComponent<Transform>()
+                 && entity->isActive())
             {
                 collidables.push_back( entity.get() );
             }

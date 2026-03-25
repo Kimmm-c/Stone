@@ -8,16 +8,42 @@ inline void collisionHandler( const ST_BaseEvent& event )
 {
     const auto& collision = static_cast<const ST_CollisionEvent&>(event);
 
-    Collider& colliderA = collision.entityA->getComponent<Collider>();
-    Collider& colliderB = collision.entityB->getComponent<Collider>();
+    ST_Entity* A = collision.entityA;
+    ST_Entity* B = collision.entityB;
 
-    // move the player back to its old position
-    if (colliderA.tag == "player" && colliderB.tag == "tile") {
-        Transform& playerTransform = collision.entityA->getComponent<Transform>();
-        playerTransform.position = playerTransform.oldPosition;
+    Collider& colliderA = A->getComponent<Collider>();
+    Collider& colliderB = B->getComponent<Collider>();
+
+    if (colliderA.tag != "tile" && colliderB.tag == "tile") {
+        Transform& transform = collision.entityA->getComponent<Transform>();
+        Velocity& velocity = collision.entityA->getComponent<Velocity>();
+
+        transform.position = transform.oldPosition;
+
+        // Reset velocity so player doesn't overshoot platform due to large velocity
+        if (velocity.direction.y > 0) {
+            velocity.direction.y = 0;
+        }
     }
-    else if (colliderA.tag == "tile" && colliderB.tag == "player") {
-        Transform& playerTransform = collision.entityB->getComponent<Transform>();
-        playerTransform.position = playerTransform.oldPosition;
+    else if (colliderA.tag == "tile" && colliderB.tag != "tile") {
+        Transform& transform = collision.entityB->getComponent<Transform>();
+        Velocity& velocity = collision.entityB->getComponent<Velocity>();
+
+        transform.position = transform.oldPosition;
+
+        // Reset velocity so player doesn't overshoot platform due to large velocity
+        if (velocity.direction.y > 0) {
+            velocity.direction.y = 0;
+        }
+    }
+
+    // Collision between destructive projectile and tile
+    if (colliderA.tag == "destructiveProjectile" && colliderB.tag == "tile") {
+        A->addComponent<PendingDestroy>();
+        B->addComponent<PendingDestroy>();
+    }
+    else if (colliderA.tag == "tile" && colliderB.tag == "destructiveProjectile") {
+        A->addComponent<PendingDestroy>();
+        B->addComponent<PendingDestroy>();
     }
 }

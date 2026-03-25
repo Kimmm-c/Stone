@@ -79,3 +79,4 @@ struct MapTile
 // ------------ TAGS ---------------- //
 struct PlayerTag {};
 struct DestructiveProjectileTag {};
+struct PendingDestroy {};
