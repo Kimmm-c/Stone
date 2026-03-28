@@ -15,12 +15,14 @@ public:
 
         if (context.event.type == SDL_EVENT_KEY_DOWN || context.event.type == SDL_EVENT_KEY_UP) {
             for (auto& entity : entities) {
+                if (!entity->isActive()) continue;
+
                 if (entity->hasComponent<PlayerTag>()) {
-                    context.eventManager.emit<ST_PlayerActionEvent>( ST_PlayerActionEvent( entity.get(), context.event ) );
+                    context.eventManager.emit<ST_PlayerActionEvent>( ST_PlayerActionEvent( entity.get(), context.event, context.delta ) );
                 }
 
                 if (entity->hasComponent<ProjectileTag>()) {
-                    context.eventManager.emit<ST_ProjectileEvent>( ST_ProjectileEvent( entity.get(), context.event ) );
+                    context.eventManager.emit<ST_ProjectileEvent>( ST_ProjectileEvent( entity.get(), context.event, context.delta ) );
                 }
 
                 //if (entity->hasComponent<ProjectileAngleTag>()) {

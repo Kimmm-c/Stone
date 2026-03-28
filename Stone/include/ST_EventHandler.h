@@ -60,19 +60,31 @@ inline void collisionHandler( const ST_BaseEvent& event )
 inline void playerActionHandler( const ST_BaseEvent& event )
 {
     const auto& movementEvent = static_cast<const ST_PlayerActionEvent&>(event);
+    ST_Entity* entity = movementEvent.entity;
 
-    if (movementEvent.event.type == SDL_EVENT_KEY_DOWN) {
+    if (entity->hasComponent<Transform>() && entity->hasComponent<Velocity>()) {
+        auto& transform = entity->getComponent<Transform>();
+        auto& velocity = entity->getComponent<Velocity>();
 
-        // If KeyCode is A/LeftArrow, move the entity to the left
-        if (movementEvent.event.key.key == SDLK_A || movementEvent.event.key.key == SDLK_LEFT) {
-            SDL_Log( "moving player to the left..." );
+        // Move the player horizontally when key is pressed
+        if (movementEvent.event.type == SDL_EVENT_KEY_DOWN) {
+            // If KeyCode is A/LeftArrow, move the entity to the left
+            if (movementEvent.event.key.key == SDLK_A || movementEvent.event.key.key == SDLK_LEFT) {
+                velocity.direction.x = -1.0f;
+            }
+            // If KeyCode is D/RightArrow, move the entity to the right
+            else if (movementEvent.event.key.key == SDLK_D || movementEvent.event.key.key == SDLK_RIGHT) {
+                velocity.direction.x = 1.0f;
+            }
         }
-        // If KeyCode is D/RightArrow, move the entity to the right
-        else if (movementEvent.event.key.key == SDLK_D || movementEvent.event.key.key == SDLK_RIGHT) {
-            SDL_Log( "moving player to the right..." );
+        // Reset horizontal movement to 0 when key is released
+        else if (movementEvent.event.type == SDL_EVENT_KEY_UP) {
+            velocity.direction.x = 0.0f;
         }
+
+        transform.oldPosition = transform.position;
+        transform.position.x += velocity.direction.x * velocity.speed * movementEvent.delta;
     }
-
 }
 
 inline void projectileHandler( const ST_BaseEvent& event )

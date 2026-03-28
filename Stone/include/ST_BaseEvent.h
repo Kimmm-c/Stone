@@ -41,10 +41,12 @@ struct ST_PlayerActionEvent : public ST_BaseEvent
 {
     ST_Entity* entity = nullptr;
     const SDL_Event& event;
+    float delta;
 
-    ST_PlayerActionEvent( ST_Entity* entity, const SDL_Event& event )
+    ST_PlayerActionEvent( ST_Entity* entity, const SDL_Event& event, float delta )
         : entity( entity )
         , event( event )
+        , delta( delta )
     {
         type = EventType::PlayerAction;
     }
@@ -54,10 +56,12 @@ struct ST_ProjectileEvent : public ST_BaseEvent
 {
     ST_Entity* entity = nullptr;
     const SDL_Event& event;
+    float delta;
 
-    ST_ProjectileEvent( ST_Entity* entity, const SDL_Event& event )
+    ST_ProjectileEvent( ST_Entity* entity, const SDL_Event& event, float delta )
         : entity( entity )
         , event( event )
+        , delta( delta )
     {
         type = EventType::ProjectileUpdate;
     }
