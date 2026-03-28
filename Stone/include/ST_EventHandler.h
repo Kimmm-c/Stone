@@ -4,7 +4,6 @@
 #include "ST_Component.h"
 #include "ST_Entity.h"
 
-#include <cmath>
 #include <algorithm>
 
 inline void collisionHandler( const ST_BaseEvent& event )
@@ -112,39 +111,18 @@ inline void playerActionHandler( const ST_BaseEvent& event )
             }
 
             if (entity->hasComponent<Projectile>()) {
-                auto& projectile = entity->getComponent<Projectile>();
+                auto projectile = entity->getComponent<Projectile>();
 
                 // Spawn the projectile
                 if (playerEvent.context.event.key.key == SDLK_LSHIFT || playerEvent.context.event.key.key == SDLK_RSHIFT) {
                     ST_Entity& projectileEntity = playerEvent.layer.createEntity();
+                    projectileEntity.addComponent<ProjectileTag>();
+                    projectileEntity.addComponent<Projectile>( projectile );
 
                     Transform& projTransform = projectileEntity.addComponent<Transform>();
                     // TODO: Replace hard coded width/height
                     projTransform.position.x = transform.position.x + 32.0f / 2.0f;
                     projTransform.position.y = transform.position.y + 32.0f / 2.0f;
-
-                    // Calculate the velocity of the projectile entity
-                    projectile.angle = std::clamp( projectile.angle, 0, 89 );
-                    float angleRad = (float)projectile.angle * 3.14159265f / 180.0f;
-
-                    float x = std::cos( angleRad );
-                    float y = -std::sin( angleRad );
-
-                    Velocity& projVelocity = projectileEntity.addComponent<Velocity>();
-                    projVelocity.direction = ST_Vector2D( x, y ).normalize();
-                    projVelocity.speed = projectile.currentForce;
-
-                    SDL_Texture* texture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
-                    SDL_FRect src{ 0, 0, 32, 32 };
-                    SDL_FRect dest{ projTransform.position.x, projTransform.position.y, 32, 32 };
-                    projectileEntity.addComponent<Sprite>( texture, src, dest );
-
-                    Collider& collision = projectileEntity.addComponent<Collider>( "destructiveProjectile" );
-
-                    collision.rect.w = dest.w;
-                    collision.rect.h = dest.h;
-
-                    projectileEntity.addComponent<DestructiveProjectileTag>();
                 }
             }
         }

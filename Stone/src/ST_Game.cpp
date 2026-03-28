@@ -4,8 +4,8 @@
 #include "ST_PhysicsSystem.h"
 #include "ST_CollisionSystem.h"
 #include "ST_ColliderSyncSystem.h"
-#include "ST_SpawnTimerSystem.h"
 #include "ST_KeyboardInputSystem.h"
+#include "ST_ProjectileSpawnSystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -77,24 +77,23 @@ void ST_Game::init()
 
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
-    //gameplayScene.registerEventHandler<ST_ProjectileEvent>( projectileHandler );
     gameplayScene.registerEventHandler<ST_CollisionEvent>( collisionHandler );
 
     SDL_Log( "do something" );
 
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
+    gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
     gameplayScene.addSystem<ST_PhysicsSystem>();
     gameplayScene.addSystem<ST_ColliderSyncSystem>();
     gameplayScene.addSystem<ST_CollisionSystem>();
-    gameplayScene.addSystem<ST_SpawnTimerSystem>();
 
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
+        , ST_ProjectileSpawnSystem
         , ST_PhysicsSystem
         , ST_ColliderSyncSystem
         , ST_CollisionSystem
-        , ST_SpawnTimerSystem
     >( midground );
 }
 
