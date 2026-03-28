@@ -4,6 +4,7 @@
 #include "ST_Component.h"
 #include "ST_Entity.h"
 
+
 inline void collisionHandler( const ST_BaseEvent& event )
 {
     const auto& collision = static_cast<const ST_CollisionEvent&>(event);
@@ -45,5 +46,51 @@ inline void collisionHandler( const ST_BaseEvent& event )
     else if (colliderA.tag == "tile" && colliderB.tag == "destructiveProjectile") {
         A->addComponent<PendingDestroy>();
         B->addComponent<PendingDestroy>();
+    }
+}
+
+/*
+* Player 1                              |Player 2
+* Movement control: A/D                 |Movement control: Left/Right arrow
+* Shooting angle control: W/S           |Shooting angle control: Up/Down arrow
+* Shooting type control: 1, 2, 3        |Shooting type control: ',', '.', '/'
+* Shooting power control: Left shift    |Shooting power control: Right shift
+* Launch shot: Release left shift       |Launch shot: Release right shift
+*/
+inline void playerActionHandler( const ST_BaseEvent& event )
+{
+    const auto& movementEvent = static_cast<const ST_PlayerActionEvent&>(event);
+
+    if (movementEvent.event.type == SDL_EVENT_KEY_DOWN) {
+
+        // If KeyCode is A/LeftArrow, move the entity to the left
+        if (movementEvent.event.key.key == SDLK_A || movementEvent.event.key.key == SDLK_LEFT) {
+            SDL_Log( "moving player to the left..." );
+        }
+        // If KeyCode is D/RightArrow, move the entity to the right
+        else if (movementEvent.event.key.key == SDLK_D || movementEvent.event.key.key == SDLK_RIGHT) {
+            SDL_Log( "moving player to the right..." );
+        }
+    }
+
+}
+
+inline void projectileHandler( const ST_BaseEvent& event )
+{
+    auto& projectileEvent = static_cast<const ST_ProjectileEvent&>(event);
+
+    if (projectileEvent.event.type == SDL_EVENT_KEY_DOWN) {
+        // Input: W/UpArrow -> Increase projectile's shooting angle
+        if (projectileEvent.event.key.key == SDLK_W || projectileEvent.event.key.key == SDLK_UP) {
+            SDL_Log( "increasing shooting angle..." );
+        }
+        // Input: S/DownArrow -> Decrease projectile's shooting angle
+        else if (projectileEvent.event.key.key == SDLK_S || projectileEvent.event.key.key == SDLK_DOWN) {
+            SDL_Log( "decreasing shooting angle..." );
+        }
+        // Input: SpaceBar -> Update projectile's shooting power
+        else if (projectileEvent.event.key.key == SDLK_SPACE) {
+            SDL_Log( "updating shooting power..." );
+        }
     }
 }

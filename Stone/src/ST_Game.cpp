@@ -5,6 +5,7 @@
 #include "ST_CollisionSystem.h"
 #include "ST_ColliderSyncSystem.h"
 #include "ST_SpawnTimerSystem.h"
+#include "ST_KeyboardInputSystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -65,6 +66,8 @@ void ST_Game::init()
     playerCollider.rect.w = 64;
     playerCollider.rect.h = 64;
 
+    player.addComponent<PlayerTag>();
+
     // Set up camera
     Camera camera = gameplayScene.createCamera();
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
@@ -72,18 +75,22 @@ void ST_Game::init()
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
 
     // Register event handler
+    gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
+    gameplayScene.registerEventHandler<ST_ProjectileEvent>( projectileHandler );
     gameplayScene.registerEventHandler<ST_CollisionEvent>( collisionHandler );
 
     SDL_Log( "do something" );
 
     // Set up systems
+    gameplayScene.addSystem<ST_KeyboardInputSystem>();
     gameplayScene.addSystem<ST_PhysicsSystem>();
     gameplayScene.addSystem<ST_ColliderSyncSystem>();
     gameplayScene.addSystem<ST_CollisionSystem>();
     gameplayScene.addSystem<ST_SpawnTimerSystem>();
 
     gameplayScene.registerLayer<
-        ST_PhysicsSystem
+        ST_KeyboardInputSystem
+        , ST_PhysicsSystem
         , ST_ColliderSyncSystem
         , ST_CollisionSystem
         , ST_SpawnTimerSystem
@@ -111,6 +118,7 @@ void ST_Game::init()
         collision.rect.h = dest.h;
 
         projectile.addComponent<DestructiveProjectileTag>();
+        projectile.addComponent<ProjectileTag>();
                                         } );
 }
 

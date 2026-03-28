@@ -79,4 +79,7 @@ struct MapTile
 // ------------ TAGS ---------------- //
 struct PlayerTag {};
 struct DestructiveProjectileTag {};
+struct ProjectileTag {};
+struct ProjectileAngleTag {};   // UI element representing the shooting angle
+struct ProjectileChargeTag {};  // UI element representing the shooting power
 struct PendingDestroy {};

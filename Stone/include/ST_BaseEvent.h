@@ -5,6 +5,8 @@ class ST_Entity;
 enum class EventType
 {
     Collision,
+    PlayerAction,
+    ProjectileUpdate
 };
 
 struct ST_BaseEvent
@@ -32,5 +34,57 @@ struct ST_CollisionEvent : public ST_BaseEvent
         , state( state )
     {
         type = EventType::Collision;
+    }
+};
+
+struct ST_PlayerActionEvent : public ST_BaseEvent
+{
+    ST_Entity* entity = nullptr;
+    const SDL_Event& event;
+
+    ST_PlayerActionEvent( ST_Entity* entity, const SDL_Event& event )
+        : entity( entity )
+        , event( event )
+    {
+        type = EventType::PlayerAction;
+    }
+};
+
+struct ST_ProjectileEvent : public ST_BaseEvent
+{
+    ST_Entity* entity = nullptr;
+    const SDL_Event& event;
+
+    ST_ProjectileEvent( ST_Entity* entity, const SDL_Event& event )
+        : entity( entity )
+        , event( event )
+    {
+        type = EventType::ProjectileUpdate;
+    }
+};
+
+struct ST_ProjectileAngleEvent : public ST_BaseEvent
+{
+    ST_Entity* entity = nullptr;
+    const SDL_Event& event;
+
+    ST_ProjectileAngleEvent( ST_Entity* entity, const SDL_Event& event )
+        : entity( entity )
+        , event( event )
+    {
+        type = EventType::ProjectileUpdate;
+    }
+};
+
+struct ST_ProjectileChargeEvent : public ST_BaseEvent
+{
+    ST_Entity* entity = nullptr;
+    const SDL_Event& event;
+
+    ST_ProjectileChargeEvent( ST_Entity* entity, const SDL_Event& event )
+        : entity( entity )
+        , event( event )
+    {
+        type = EventType::ProjectileUpdate;
     }
 };

@@ -16,14 +16,6 @@ public:
     template<typename T>
     void emit( const ST_BaseEvent& event )
     {
-        //m_EventQueue.emplace_back(
-        //    [this, event]() {
-        //        auto id = getEventTypeID<T>();
-        //        for (auto& handler : m_EventHandlerBuckets[id])
-        //            handler( event );
-        //    }
-        //);
-
         auto id = getEventTypeID<T>();
         for (auto& handler : m_EventHandlerBuckets[id])
             handler( event );
