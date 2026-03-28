@@ -40,55 +40,14 @@ struct ST_CollisionEvent : public ST_BaseEvent
 struct ST_PlayerActionEvent : public ST_BaseEvent
 {
     ST_Entity* entity = nullptr;
-    const SDL_Event& event;
-    float delta;
+    ST_Layer& layer;
+    const ST_SystemContext& context;
 
-    ST_PlayerActionEvent( ST_Entity* entity, const SDL_Event& event, float delta )
+    ST_PlayerActionEvent( ST_Entity* entity, ST_Layer& layer, const ST_SystemContext& context )
         : entity( entity )
-        , event( event )
-        , delta( delta )
+        , layer( layer )
+        , context( context )
     {
         type = EventType::PlayerAction;
-    }
-};
-
-struct ST_ProjectileEvent : public ST_BaseEvent
-{
-    ST_Entity* entity = nullptr;
-    const SDL_Event& event;
-    float delta;
-
-    ST_ProjectileEvent( ST_Entity* entity, const SDL_Event& event, float delta )
-        : entity( entity )
-        , event( event )
-        , delta( delta )
-    {
-        type = EventType::ProjectileUpdate;
-    }
-};
-
-struct ST_ProjectileAngleEvent : public ST_BaseEvent
-{
-    ST_Entity* entity = nullptr;
-    const SDL_Event& event;
-
-    ST_ProjectileAngleEvent( ST_Entity* entity, const SDL_Event& event )
-        : entity( entity )
-        , event( event )
-    {
-        type = EventType::ProjectileUpdate;
-    }
-};
-
-struct ST_ProjectileChargeEvent : public ST_BaseEvent
-{
-    ST_Entity* entity = nullptr;
-    const SDL_Event& event;
-
-    ST_ProjectileChargeEvent( ST_Entity* entity, const SDL_Event& event )
-        : entity( entity )
-        , event( event )
-    {
-        type = EventType::ProjectileUpdate;
     }
 };

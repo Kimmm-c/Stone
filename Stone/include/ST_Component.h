@@ -75,16 +75,23 @@ struct MapTile
     int col{};  // Col index of the tile in the 2D map matrix
 };
 
+
+struct Force
+{
+    int min;
+    int max;
+};
+
 struct Projectile
 {
     int angle = 30;
-    int force{};
+
+    Force force{ 100, 500 };
+    int currentForce = force.min;
 };
 
 
 // ------------ TAGS ---------------- //
 struct PlayerTag {};
 struct DestructiveProjectileTag {};
-struct ProjectileAngleTag {};   // UI element representing the shooting angle
-struct ProjectileChargeTag {};  // UI element representing the shooting power
 struct PendingDestroy {};

@@ -8,7 +8,7 @@
 class ST_KeyboardInputSystem : public ST_ISystem
 {
 public:
-    void update( ST_Layer& layer, const ST_SystemContext& context )
+    void update( ST_Layer& layer, const ST_SystemContext& context ) override
     {
         // emit the user input
         auto& entities = layer.getEntities();
@@ -18,11 +18,7 @@ public:
                 if (!entity->isActive()) continue;
 
                 if (entity->hasComponent<PlayerTag>()) {
-                    context.eventManager.emit<ST_PlayerActionEvent>( ST_PlayerActionEvent( entity.get(), context.event, context.delta ) );
-                }
-
-                if (entity->hasComponent<Projectile>()) {
-                    context.eventManager.emit<ST_ProjectileEvent>( ST_ProjectileEvent( entity.get(), context.event, context.delta ) );
+                    context.eventManager.emit<ST_PlayerActionEvent>( ST_PlayerActionEvent( entity.get(), layer, context ) );
                 }
 
                 //if (entity->hasComponent<ProjectileAngleTag>()) {

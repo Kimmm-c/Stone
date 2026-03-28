@@ -4,6 +4,8 @@
 #include "ST_Component.h"
 #include "ST_Entity.h"
 
+#include <cmath>
+#include <algorithm>
 
 inline void collisionHandler( const ST_BaseEvent& event )
 {
@@ -59,53 +61,95 @@ inline void collisionHandler( const ST_BaseEvent& event )
 */
 inline void playerActionHandler( const ST_BaseEvent& event )
 {
-    const auto& movementEvent = static_cast<const ST_PlayerActionEvent&>(event);
-    ST_Entity* entity = movementEvent.entity;
+    const auto& playerEvent = static_cast<const ST_PlayerActionEvent&>(event);
+    ST_Entity* entity = playerEvent.entity;
 
     if (entity->hasComponent<Transform>() && entity->hasComponent<Velocity>()) {
         auto& transform = entity->getComponent<Transform>();
         auto& velocity = entity->getComponent<Velocity>();
 
-        // Move the player horizontally when key is pressed
-        if (movementEvent.event.type == SDL_EVENT_KEY_DOWN) {
+        // Move the player horizontally OR update projectile's properties when key is pressed
+        if (playerEvent.context.event.type == SDL_EVENT_KEY_DOWN) {
             // If KeyCode is A/LeftArrow, move the entity to the left
-            if (movementEvent.event.key.key == SDLK_A || movementEvent.event.key.key == SDLK_LEFT) {
+            if (playerEvent.context.event.key.key == SDLK_A || playerEvent.context.event.key.key == SDLK_LEFT) {
                 velocity.direction.x = -1.0f;
             }
             // If KeyCode is D/RightArrow, move the entity to the right
-            else if (movementEvent.event.key.key == SDLK_D || movementEvent.event.key.key == SDLK_RIGHT) {
+            else if (playerEvent.context.event.key.key == SDLK_D || playerEvent.context.event.key.key == SDLK_RIGHT) {
                 velocity.direction.x = 1.0f;
             }
+
+            if (entity->hasComponent<Projectile>()) {
+                auto& projectile = entity->getComponent<Projectile>();
+
+                // Input: W/UpArrow -> Increase projectile's shooting angle
+                if (playerEvent.context.event.key.key == SDLK_W || playerEvent.context.event.key.key == SDLK_UP) {
+                    projectile.angle = std::clamp( projectile.angle + 1, 0, 89 );
+                }
+                // Input: S/DownArrow -> Decrease projectile's shooting angle
+                else if (playerEvent.context.event.key.key == SDLK_S || playerEvent.context.event.key.key == SDLK_DOWN) {
+                    projectile.angle = std::clamp( projectile.angle - 1, 0, 89 );
+                }
+                // Input: SpaceBar -> Update projectile's shooting power
+                else if (playerEvent.context.event.key.key == SDLK_LSHIFT || playerEvent.context.event.key.key == SDLK_RSHIFT) {
+                    int nextForce = projectile.currentForce + 50;
+
+                    if (nextForce > projectile.force.max) {
+                        nextForce = projectile.force.min;
+                    }
+
+                    projectile.currentForce = nextForce;
+                }
+            }
         }
-        // Reset horizontal movement to 0 when key is released
-        else if (movementEvent.event.type == SDL_EVENT_KEY_UP) {
-            velocity.direction.x = 0.0f;
+        else if (playerEvent.context.event.type == SDL_EVENT_KEY_UP) {
+            // Reset horizontal movement to 0 when key is released
+            if (playerEvent.context.event.key.key == SDLK_A
+                 || playerEvent.context.event.key.key == SDLK_LEFT
+                 || playerEvent.context.event.key.key == SDLK_D
+                 || playerEvent.context.event.key.key == SDLK_RIGHT) {
+                velocity.direction.x = 0.0f;
+            }
+
+            if (entity->hasComponent<Projectile>()) {
+                auto& projectile = entity->getComponent<Projectile>();
+
+                // Spawn the projectile
+                if (playerEvent.context.event.key.key == SDLK_LSHIFT || playerEvent.context.event.key.key == SDLK_RSHIFT) {
+                    ST_Entity& projectileEntity = playerEvent.layer.createEntity();
+
+                    Transform& projTransform = projectileEntity.addComponent<Transform>();
+                    // TODO: Replace hard coded width/height
+                    projTransform.position.x = transform.position.x + 32.0f / 2.0f;
+                    projTransform.position.y = transform.position.y + 32.0f / 2.0f;
+
+                    // Calculate the velocity of the projectile entity
+                    projectile.angle = std::clamp( projectile.angle, 0, 89 );
+                    float angleRad = (float)projectile.angle * 3.14159265f / 180.0f;
+
+                    float x = std::cos( angleRad );
+                    float y = -std::sin( angleRad );
+
+                    Velocity& projVelocity = projectileEntity.addComponent<Velocity>();
+                    projVelocity.direction = ST_Vector2D( x, y ).normalize();
+                    projVelocity.speed = projectile.currentForce;
+
+                    SDL_Texture* texture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+                    SDL_FRect src{ 0, 0, 32, 32 };
+                    SDL_FRect dest{ projTransform.position.x, projTransform.position.y, 32, 32 };
+                    projectileEntity.addComponent<Sprite>( texture, src, dest );
+
+                    Collider& collision = projectileEntity.addComponent<Collider>( "destructiveProjectile" );
+
+                    collision.rect.w = dest.w;
+                    collision.rect.h = dest.h;
+
+                    projectileEntity.addComponent<DestructiveProjectileTag>();
+                }
+            }
         }
 
         transform.oldPosition = transform.position;
-        transform.position.x += velocity.direction.x * velocity.speed * movementEvent.delta;
-    }
-}
-
-inline void projectileHandler( const ST_BaseEvent& event )
-{
-    auto& projectileEvent = static_cast<const ST_ProjectileEvent&>(event);
-    ST_Entity* entity = projectileEvent.entity;
-
-    if (projectileEvent.event.type == SDL_EVENT_KEY_DOWN) {
-        auto& projectile = entity->getComponent<Projectile>();
-
-        // Input: W/UpArrow -> Increase projectile's shooting angle
-        if (projectileEvent.event.key.key == SDLK_W || projectileEvent.event.key.key == SDLK_UP) {
-            projectile.angle = (projectile.angle + 1) % 89;
-        }
-        // Input: S/DownArrow -> Decrease projectile's shooting angle
-        else if (projectileEvent.event.key.key == SDLK_S || projectileEvent.event.key.key == SDLK_DOWN) {
-            projectile.angle = (projectile.angle - 1) % 89;
-        }
-        // Input: SpaceBar -> Update projectile's shooting power
-        else if (projectileEvent.event.key.key == SDLK_SPACE) {
-            projectile.force = (projectile.force + 1) % 100;
-        }
+        transform.position.x += velocity.direction.x * velocity.speed * playerEvent.context.delta;
     }
 }
