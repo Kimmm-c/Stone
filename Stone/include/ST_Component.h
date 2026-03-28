@@ -34,13 +34,6 @@ struct Sprite
     SDL_FRect dest{};
 };
 
-struct Overlay
-{
-    SDL_Texture* texture = nullptr;
-    SDL_FRect src{};
-    SDL_FRect dest{};
-};
-
 struct Collider
 {
     std::string tag;

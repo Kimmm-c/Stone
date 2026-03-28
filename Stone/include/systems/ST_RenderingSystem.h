@@ -3,14 +3,15 @@
 #include "ST_Entity.h"
 #include "ST_Component.h"
 #include "ST_TextureManager.h"
+#include "ST_ISystem.h"
 
 #include <memory>
 #include <vector>
 
-class ST_RenderingSystem
+class ST_RenderingSystem : public ST_IRenderSystem
 {
 public:
-    static void render( std::vector<std::unique_ptr<ST_Entity>>& entities, Camera* camera, bool debugMode )
+    void render( std::vector<std::unique_ptr<ST_Entity>>& entities, Camera* camera, bool debugMode )
     {
         for (auto& entity : entities) {
             if (!entity->isActive())
@@ -32,29 +33,12 @@ public:
                 //    sprite.src = clip.frameIndices[animation.currentFrame];
                 //}
 
-                if (debugMode) {
-
-                    ST_TextureManager::draw( { sprite.texture, &sprite.src, &sprite.dest, 130 } );
-                }
-                else {
-                    ST_TextureManager::draw( { sprite.texture, &sprite.src, &sprite.dest } );
-                }
+                RenderContext context{ sprite.texture, &sprite.src, &sprite.dest };
+                ST_TextureManager::draw( context );
             }
 
             if (debugMode) {
-                if (entity->hasComponent<Collider>() && !entity->hasComponent<MapTile>()) {
-                    Collider collider = entity->getComponent<Collider>();
-
-                    SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet2.png" );
-                    SDL_FRect colliderSrc{ 0, 32, 32, 32 };
-                    SDL_FRect colliderDest{ collider.rect.x, collider.rect.y, collider.rect.w, collider.rect.h };
-
-                    // Reduce the opacity of the debug overlay
-                    SDL_SetTextureAlphaMod( colliderTexture, 150 );
-                    SDL_SetTextureBlendMode( colliderTexture, SDL_BLENDMODE_BLEND );
-
-                    ST_TextureManager::draw( { colliderTexture, &colliderSrc, &colliderDest } );
-                }
+                renderDebug( entities );
             }
         }
     }

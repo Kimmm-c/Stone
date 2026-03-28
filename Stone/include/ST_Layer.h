@@ -26,7 +26,7 @@ public:
     inline std::vector<std::unique_ptr<ST_Entity>>& getEntities() { return m_Entities; }
 
 private:
-    ST_RenderingSystem m_RenderingSystem{};
-    ST_MapRenderingSystem m_MapRenderingSystem{};
+    std::unique_ptr<ST_IRenderSystem> m_RenderingSystem = std::make_unique<ST_RenderingSystem>();
+    std::unique_ptr<ST_IRenderSystem> m_MapRenderingSystem = std::make_unique<ST_MapRenderingSystem>();
     std::vector<std::unique_ptr<ST_Entity>> m_Entities{};
 };

@@ -51,15 +51,6 @@ SDL_Texture* ST_TextureManager::load( const char* path )
 // FRect is used for floating point rectangle (x, y, w, h)
 void ST_TextureManager::draw( const RenderContext& context )
 {
-    // Enabling blending for texture if applicable
-    if (context.alphaValue >= 0) {
-        if (SDL_SetTextureBlendMode( context.texture, SDL_BLENDMODE_BLEND ) < 0)
-            SDL_Log( SDL_GetError() );
-
-        if (SDL_SetTextureAlphaMod( context.texture, context.alphaValue ) < 0)
-            SDL_Log( SDL_GetError() );
-    }
-
     SDL_RenderTexture( m_Renderer->getNativeRenderer(), context.texture, context.src, context.dest );
 }
 

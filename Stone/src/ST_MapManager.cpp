@@ -98,18 +98,10 @@ int ST_MapManager::loadTiles( const ST_MapContext& mapContext, const ST_SpriteSh
 
                 // Create collider for each tile
                 if (mapContext.hasColliders) {
-                    ST_Entity& colliderEntity = mapContext.parentLayer.createEntity();
-
                     Transform transform = Transform( ST_Vector2D( sprite.dest.x, sprite.dest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-                    colliderEntity.addComponent<Transform>( transform );
-
-                    Collider& mapColliderComp = colliderEntity.addComponent<Collider>( mapContext.colliderTag );
+                    tileEntity.addComponent<Transform>( transform );
+                    Collider& mapColliderComp = tileEntity.addComponent<Collider>( mapContext.colliderTag );
                     mapColliderComp.rect = sprite.dest;
-
-                    Overlay overlay = Overlay( ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" ) );
-                    overlay.src.w = overlay.dest.w = mapContext.tileWidth;
-                    overlay.src.h = overlay.dest.h = mapContext.tileHeight;
-                    colliderEntity.addComponent<Overlay>( overlay );
                 }
             }
         }
