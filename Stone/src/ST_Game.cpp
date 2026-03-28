@@ -105,7 +105,7 @@ void ST_Game::init()
         SDL_FRect dest{ transform.position.x, transform.position.y, 64, 64 };
         projectile.addComponent<Sprite>( texture, src, dest );
 
-        Collider collision = projectile.addComponent<Collider>( "destructiveProjectile" );
+        Collider& collision = projectile.addComponent<Collider>( "destructiveProjectile" );
 
         collision.rect.w = dest.w;
         collision.rect.h = dest.h;

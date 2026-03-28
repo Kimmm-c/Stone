@@ -30,15 +30,15 @@ public:
             }
 
             if (debugMode) {
-                if (entity->hasComponent<Collider>() && entity->hasComponent<Transform>()) {
+                if (entity->hasComponent<MapTile>() && entity->hasComponent<Collider>()) {
                     Collider collider = entity->getComponent<Collider>();
 
-                    SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+                    SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet2.png" );
                     SDL_FRect colliderSrc{ 0, 32, 32, 32 };
                     SDL_FRect colliderDest{ collider.rect.x, collider.rect.y, collider.rect.w, collider.rect.h };
 
                     // Reduce the opacity of the debug overlay
-                    SDL_SetTextureAlphaMod( colliderTexture, 100 );
+                    SDL_SetTextureAlphaMod( colliderTexture, 150 );
                     SDL_SetTextureBlendMode( colliderTexture, SDL_BLENDMODE_BLEND );
 
                     ST_TextureManager::draw( { colliderTexture, &colliderSrc, &colliderDest } );
