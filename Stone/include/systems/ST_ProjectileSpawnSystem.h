@@ -16,7 +16,7 @@ public:
         auto& entities = layer.getEntities();
 
         for (auto& entity : entities) {
-            if (entity->hasComponent<ProjectileTag>()) {
+            if (entity->hasComponent<PendingProjectileTag>()) {
                 Projectile& projectile = entity->getComponent<Projectile>();
                 Transform& projTransform = entity->getComponent<Transform>();
 
@@ -42,6 +42,8 @@ public:
                 collision.rect.h = dest.h;
 
                 entity->addComponent<DestructiveProjectileTag>();
+                entity->deactivate<PendingProjectileTag>();
+                entity->addComponent<ProjectileTag>();
             }
         }
     }

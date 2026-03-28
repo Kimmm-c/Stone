@@ -93,6 +93,7 @@ struct Projectile
 
 // ------------ TAGS ---------------- //
 struct PlayerTag {};
+struct PendingProjectileTag {};
 struct ProjectileTag {};
 struct DestructiveProjectileTag {};
 struct PendingDestroy {};

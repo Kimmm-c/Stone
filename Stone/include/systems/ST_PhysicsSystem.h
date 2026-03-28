@@ -21,7 +21,7 @@ public:
                 auto& t = entity->getComponent<Transform>();
                 auto& v = entity->getComponent<Velocity>();
 
-                v.direction.y += 8.0f * context.delta;
+                v.direction.y += 3.0f * context.delta;
 
                 t.oldPosition = t.position;
 

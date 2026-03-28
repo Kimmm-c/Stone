@@ -116,7 +116,7 @@ inline void playerActionHandler( const ST_BaseEvent& event )
                 // Spawn the projectile
                 if (playerEvent.context.event.key.key == SDLK_LSHIFT || playerEvent.context.event.key.key == SDLK_RSHIFT) {
                     ST_Entity& projectileEntity = playerEvent.layer.createEntity();
-                    projectileEntity.addComponent<ProjectileTag>();
+                    projectileEntity.addComponent<PendingProjectileTag>();
                     projectileEntity.addComponent<Projectile>( projectile );
 
                     Transform& projTransform = projectileEntity.addComponent<Transform>();
