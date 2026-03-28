@@ -13,7 +13,6 @@ public:
         auto& entities = layer.getEntities();
         std::vector<ST_Entity*> collidables = queryCollidables( entities );
 
-        // Update all collider positions
         int len = collidables.size();
 
         for (int i = 0; i < len; i++) {
