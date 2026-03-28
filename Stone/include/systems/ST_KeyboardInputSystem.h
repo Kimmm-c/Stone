@@ -21,7 +21,7 @@ public:
                     context.eventManager.emit<ST_PlayerActionEvent>( ST_PlayerActionEvent( entity.get(), context.event, context.delta ) );
                 }
 
-                if (entity->hasComponent<ProjectileTag>()) {
+                if (entity->hasComponent<Projectile>()) {
                     context.eventManager.emit<ST_ProjectileEvent>( ST_ProjectileEvent( entity.get(), context.event, context.delta ) );
                 }
 

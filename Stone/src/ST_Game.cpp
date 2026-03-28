@@ -118,7 +118,7 @@ void ST_Game::init()
         collision.rect.h = dest.h;
 
         projectile.addComponent<DestructiveProjectileTag>();
-        projectile.addComponent<ProjectileTag>();
+        projectile.addComponent<Projectile>();
                                         } );
 }
 

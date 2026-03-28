@@ -90,19 +90,22 @@ inline void playerActionHandler( const ST_BaseEvent& event )
 inline void projectileHandler( const ST_BaseEvent& event )
 {
     auto& projectileEvent = static_cast<const ST_ProjectileEvent&>(event);
+    ST_Entity* entity = projectileEvent.entity;
 
     if (projectileEvent.event.type == SDL_EVENT_KEY_DOWN) {
+        auto& projectile = entity->getComponent<Projectile>();
+
         // Input: W/UpArrow -> Increase projectile's shooting angle
         if (projectileEvent.event.key.key == SDLK_W || projectileEvent.event.key.key == SDLK_UP) {
-            SDL_Log( "increasing shooting angle..." );
+            projectile.angle = (projectile.angle + 1) % 89;
         }
         // Input: S/DownArrow -> Decrease projectile's shooting angle
         else if (projectileEvent.event.key.key == SDLK_S || projectileEvent.event.key.key == SDLK_DOWN) {
-            SDL_Log( "decreasing shooting angle..." );
+            projectile.angle = (projectile.angle - 1) % 89;
         }
         // Input: SpaceBar -> Update projectile's shooting power
         else if (projectileEvent.event.key.key == SDLK_SPACE) {
-            SDL_Log( "updating shooting power..." );
+            projectile.force = (projectile.force + 1) % 100;
         }
     }
 }
