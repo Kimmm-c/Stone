@@ -6,6 +6,7 @@
 
 #include "ST_Entity.h"
 #include "ST_RenderingSystem.h"
+#include "ST_MapRenderingSystem.h"
 #include "ST_ISystem.h"
 
 class ST_Renderer;
@@ -26,5 +27,6 @@ public:
 
 private:
     ST_RenderingSystem m_RenderingSystem{};
+    ST_MapRenderingSystem m_MapRenderingSystem{};
     std::vector<std::unique_ptr<ST_Entity>> m_Entities{};
 };

@@ -16,19 +16,6 @@ public:
             if (!entity->isActive())
                 continue;
 
-            if (entity->hasComponent<MapTile>() && entity->hasComponent<Sprite>()) {
-                auto& sprite = entity->getComponent<Sprite>();
-                auto& mapTile = entity->getComponent<MapTile>();
-
-                float worldX = static_cast<float>(mapTile.col) * sprite.dest.w;
-                float worldY = static_cast<float>(mapTile.row) * sprite.dest.h;
-
-                sprite.dest.x = std::round( worldX - camera->view.x );
-                sprite.dest.y = std::round( worldY - camera->view.y );
-
-                ST_TextureManager::draw( { sprite.texture, &sprite.src, &sprite.dest } );
-            }
-
             if (entity->hasComponent<Transform>() && entity->hasComponent<Sprite>()) {
                 auto& transform = entity->getComponent<Transform>();
                 auto& sprite = entity->getComponent<Sprite>();
