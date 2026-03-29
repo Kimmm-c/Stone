@@ -20,7 +20,7 @@ inline void collisionHandler( const ST_BaseEvent& event )
         Transform& transform = collision.entityA->getComponent<Transform>();
         Velocity& velocity = collision.entityA->getComponent<Velocity>();
 
-        transform.position = transform.oldPosition;
+        transform.position.y = transform.oldPosition.y;
 
         // Reset velocity so player doesn't overshoot platform due to large velocity
         if (velocity.direction.y > 0) {
@@ -126,8 +126,5 @@ inline void playerActionHandler( const ST_BaseEvent& event )
                 }
             }
         }
-
-        transform.oldPosition = transform.position;
-        transform.position.x += velocity.direction.x * velocity.speed * playerEvent.context.delta;
     }
 }

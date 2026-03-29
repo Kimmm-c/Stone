@@ -6,6 +6,7 @@
 #include "ST_ColliderSyncSystem.h"
 #include "ST_KeyboardInputSystem.h"
 #include "ST_ProjectileSpawnSystem.h"
+#include "ST_MovementSystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -83,6 +84,7 @@ void ST_Game::init()
 
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
+    gameplayScene.addSystem<ST_MovementSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
     gameplayScene.addSystem<ST_PhysicsSystem>();
     gameplayScene.addSystem<ST_ColliderSyncSystem>();
@@ -90,6 +92,7 @@ void ST_Game::init()
 
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
+        , ST_MovementSystem
         , ST_ProjectileSpawnSystem
         , ST_PhysicsSystem
         , ST_ColliderSyncSystem
