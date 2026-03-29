@@ -17,7 +17,7 @@ public:
             for (auto& entity : entities) {
                 if (!entity->isActive()) continue;
 
-                if (entity->hasComponent<PlayerTag>()) {
+                if (entity->hasComponent<ActivePlayerTag>()) {
                     context.eventManager.emit<ST_PlayerActionEvent>( ST_PlayerActionEvent( entity.get(), layer, context ) );
                 }
 

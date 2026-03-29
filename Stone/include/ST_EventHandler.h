@@ -91,7 +91,7 @@ inline void handleProjectileControl( ST_Entity* entity, const SDL_Event& event )
             projectile.angle = std::clamp( projectile.angle - 1, 0, 89 );
         else if (isShift)
         {
-            int nextForce = projectile.currentForce + 50;
+            int nextForce = projectile.currentForce + projectile.forceIncrement;
             if (nextForce > projectile.force.max)
                 nextForce = projectile.force.min;
 

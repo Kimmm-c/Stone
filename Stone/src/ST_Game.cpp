@@ -7,6 +7,7 @@
 #include "ST_KeyboardInputSystem.h"
 #include "ST_ProjectileSpawnSystem.h"
 #include "ST_MovementSystem.h"
+#include "ST_TurnManagementSystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -53,22 +54,36 @@ void ST_Game::init()
         , { ST_TextureManager::load( assetPath + "spritesheet.png" ), 2, 2 }
     );
 
-    // create player
-    ST_Entity& player = midground.createEntity();
-    player.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    player.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
+    // create player A
+    ST_Entity& playerA = midground.createEntity();
+    playerA.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    playerA.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
     SDL_Texture* playerTexture = ST_TextureManager::load( assetPath + "mario.png" );
     SDL_FRect playerSrc{ 0, 0, 32,32 };
     SDL_FRect playerDst{ 0, 0, 64, 64 };
-    player.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
+    playerA.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
 
-    Collider& playerCollider = player.addComponent<Collider>( "player" );
-    playerCollider.rect.w = 64;
-    playerCollider.rect.h = 64;
+    Collider& playerACollider = playerA.addComponent<Collider>( "player" );
+    playerACollider.rect.w = 64;
+    playerACollider.rect.h = 64;
 
-    player.addComponent<PlayerTag>();
-    player.addComponent<Projectile>();
+    playerA.addComponent<PlayerTag>();
+    playerA.addComponent<Projectile>();
+
+    // create player B
+    ST_Entity& playerB = midground.createEntity();
+    playerB.addComponent<Transform>( ST_Vector2D( 300.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    playerB.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
+
+    playerB.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
+
+    Collider& playerBCollider = playerB.addComponent<Collider>( "player" );
+    playerBCollider.rect.w = 64;
+    playerBCollider.rect.h = 64;
+
+    playerB.addComponent<PlayerTag>();
+    playerB.addComponent<Projectile>();
 
     // Set up camera
     Camera camera = gameplayScene.createCamera();
@@ -84,6 +99,7 @@ void ST_Game::init()
 
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
+    gameplayScene.addSystem<ST_TurnManagementSystem>();
     gameplayScene.addSystem<ST_MovementSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
     gameplayScene.addSystem<ST_PhysicsSystem>();
@@ -92,6 +108,7 @@ void ST_Game::init()
 
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
+        , ST_TurnManagementSystem
         , ST_MovementSystem
         , ST_ProjectileSpawnSystem
         , ST_PhysicsSystem

@@ -85,14 +85,15 @@ struct Force
 struct Projectile
 {
     int angle = 30;
+    int forceIncrement = 50;
 
-    Force force{ 100, 500 };
+    Force force{ 100, 1000 };
     int currentForce = force.min;
 };
 
-
 // ------------ TAGS ---------------- //
 struct PlayerTag {};
+struct ActivePlayerTag {};
 struct PendingProjectileTag {};
 struct ProjectileTag {};
 struct DestructiveProjectileTag {};
