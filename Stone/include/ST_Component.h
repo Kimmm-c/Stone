@@ -19,6 +19,7 @@ struct Velocity
 {
     ST_Vector2D direction{};
     float speed{};
+    float facing = 1.0f;
 };
 
 struct Position
@@ -92,7 +93,8 @@ struct Projectile
 };
 
 // ------------ TAGS ---------------- //
-struct PlayerTag {
+struct PlayerTag
+{
     int id;
 };
 struct ActivePlayerTag {};

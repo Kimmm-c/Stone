@@ -62,8 +62,14 @@ inline void handleMovement( ST_Entity* entity, const SDL_Event& event )
 
     if (event.type == SDL_EVENT_KEY_DOWN)
     {
-        if (isLeft)       velocity.direction.x = -1.0f;
-        else if (isRight) velocity.direction.x = 1.0f;
+        if (isLeft) {
+            velocity.direction.x = -1.0f;
+            velocity.facing = -1.0f;
+        }
+        else if (isRight) {
+            velocity.direction.x = 1.0f;
+            velocity.facing = 1.0f;
+        }
     }
     else if (event.type == SDL_EVENT_KEY_UP)
     {
@@ -114,6 +120,7 @@ inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent
     {
         auto& projectile = entity->getComponent<Projectile>();
         auto& transform = entity->getComponent<Transform>();
+        auto& playerVelocity = entity->getComponent<Velocity>();
 
         ST_Entity& projectileEntity = playerEvent.layer.createEntity();
         projectileEntity.addComponent<PendingProjectileTag>();
@@ -124,6 +131,8 @@ inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent
         // TODO: replace hardcoded size
         projTransform.position.x = transform.position.x + 16.0f;
         projTransform.position.y = transform.position.y + 16.0f;
+
+        projectileEntity.addComponent<Velocity>( ST_Vector2D( playerVelocity.facing, 0.0f ) );
     }
 }
 

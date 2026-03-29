@@ -18,7 +18,12 @@ public:
                 const float x = transform.position.x;
                 const float y = transform.position.y;
 
-                if (x < camera.view.x || x > camera.view.w || y < camera.view.y || y > camera.view.h)
+                if (
+                    x < camera.view.x
+                    || x > camera.view.x + camera.view.w
+                    || y < camera.view.y
+                    || y > camera.view.y + camera.view.h
+                    )
                 {
                     entity->destroy();
                 }

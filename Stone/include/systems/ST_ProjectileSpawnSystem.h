@@ -27,8 +27,8 @@ public:
                 float x = std::cos( angleRad );
                 float y = -std::sin( angleRad );
 
-                Velocity& projVelocity = entity->addComponent<Velocity>();
-                projVelocity.direction = ST_Vector2D( x, y ).normalize();
+                Velocity& projVelocity = entity->getComponent<Velocity>();
+                projVelocity.direction = ST_Vector2D( x * projVelocity.direction.x, y ).normalize();
                 projVelocity.speed = projectile.currentForce;
 
                 SDL_Texture* texture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
