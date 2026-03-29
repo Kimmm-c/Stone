@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "ST_Vector2D.h"
+#include "ST_Entity.h"
 
 struct Transform
 {
@@ -57,19 +58,6 @@ struct Camera
     float worldHeight;
 };
 
-
-struct TimedSpawner
-{
-    float spawnInterval{};
-    std::function<void()> spawnCallback{};
-    float timer{};
-};
-
-struct SceneState
-{
-    int coinsCollected = 0;
-};
-
 struct MapTile
 {
     int row{};  // Row index of the tile in the 2D map matrix
@@ -86,10 +74,27 @@ struct Force
 struct Projectile
 {
     int angle = 30;
-    int forceIncrement = 50;
+    int forceIncrement = 5;
 
-    Force force{ 100, 1000 };
+    Force force{ 0, 1000 };
     int currentForce = force.min;
+};
+
+struct Health
+{
+    int healthPoint{};
+};
+
+enum class GameState
+{
+    Playing,
+    GameOver
+};
+
+struct GameStateComponent
+{
+    GameState state = GameState::Playing;
+    ST_Entity* winner = nullptr;
 };
 
 // ------------ TAGS ---------------- //

@@ -9,6 +9,7 @@
 #include "ST_MovementSystem.h"
 #include "ST_TurnManagementSystem.h"
 #include "ST_ProjectileDestructionSystem.h"
+#include "ST_GameStateSystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -71,6 +72,7 @@ void ST_Game::init()
 
     playerA.addComponent<PlayerTag>( 0 );
     playerA.addComponent<Projectile>();
+    playerA.addComponent<Health>( 1000 );
 
     // create player B
     ST_Entity& playerB = midground.createEntity();
@@ -87,6 +89,7 @@ void ST_Game::init()
 
     playerB.addComponent<PlayerTag>( 1 );
     playerB.addComponent<Projectile>();
+    playerB.addComponent<Health>( 1000 );
 
     // Set up camera
     Camera& camera = gameplayScene.createCamera();
@@ -109,6 +112,7 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_ColliderSyncSystem>();
     gameplayScene.addSystem<ST_CollisionSystem>();
     gameplayScene.addSystem<ST_ProjectileDestructionSystem>();
+    gameplayScene.addSystem<ST_GameStateSystem>();
 
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
@@ -119,6 +123,7 @@ void ST_Game::init()
         , ST_ColliderSyncSystem
         , ST_CollisionSystem
         , ST_ProjectileDestructionSystem
+        , ST_GameStateSystem
     >( midground );
 }
 
