@@ -20,7 +20,7 @@ inline void collisionHandler( const ST_BaseEvent& event )
         Transform& transform = collision.entityA->getComponent<Transform>();
         Velocity& velocity = collision.entityA->getComponent<Velocity>();
 
-        transform.position.y = transform.oldPosition.y;
+        transform.position = transform.oldPosition;
 
         // Reset velocity so player doesn't overshoot platform due to large velocity
         if (velocity.direction.y > 0) {
@@ -141,6 +141,33 @@ inline void playerActionHandler( const ST_BaseEvent& event )
     ST_Entity* entity = playerEvent.entity;
 
     const auto& keyEvent = playerEvent.context.event;
+    const auto key = keyEvent.key.key;
+
+    int playerID = entity->getComponent<PlayerTag>().id;
+
+    bool validInput = false;
+
+    if (playerID == 0)
+    {
+        // Player 1 keys
+        validInput = (
+            key == SDLK_A || key == SDLK_D ||
+            key == SDLK_W || key == SDLK_S ||
+            key == SDLK_LSHIFT
+            );
+    }
+    else if (playerID == 1)
+    {
+        // Player 2 keys
+        validInput = (
+            key == SDLK_LEFT || key == SDLK_RIGHT ||
+            key == SDLK_UP || key == SDLK_DOWN ||
+            key == SDLK_RSHIFT
+            );
+    }
+
+    if (!validInput)
+        return;
 
     handleMovement( entity, keyEvent );
     handleProjectileControl( entity, keyEvent );

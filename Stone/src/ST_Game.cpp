@@ -8,6 +8,7 @@
 #include "ST_ProjectileSpawnSystem.h"
 #include "ST_MovementSystem.h"
 #include "ST_TurnManagementSystem.h"
+#include "ST_ProjectileDestructionSystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -60,15 +61,15 @@ void ST_Game::init()
     playerA.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
     SDL_Texture* playerTexture = ST_TextureManager::load( assetPath + "mario.png" );
-    SDL_FRect playerSrc{ 0, 0, 32,32 };
-    SDL_FRect playerDst{ 0, 0, 64, 64 };
-    playerA.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
+    SDL_FRect playerASrc{ 0, 0, 32,32 };
+    SDL_FRect playerADst{ 0, 0, 64, 64 };
+    playerA.addComponent<Sprite>( playerTexture, playerASrc, playerADst );
 
     Collider& playerACollider = playerA.addComponent<Collider>( "player" );
     playerACollider.rect.w = 64;
     playerACollider.rect.h = 64;
 
-    playerA.addComponent<PlayerTag>();
+    playerA.addComponent<PlayerTag>( 0 );
     playerA.addComponent<Projectile>();
 
     // create player B
@@ -76,17 +77,19 @@ void ST_Game::init()
     playerB.addComponent<Transform>( ST_Vector2D( 300.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     playerB.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
-    playerB.addComponent<Sprite>( playerTexture, playerSrc, playerDst );
+    SDL_FRect playerBSrc{ 0, 0, 32,32 };
+    SDL_FRect playerBDst{ 0, 0, 64, 64 };
+    playerB.addComponent<Sprite>( playerTexture, playerBSrc, playerBDst );
 
     Collider& playerBCollider = playerB.addComponent<Collider>( "player" );
     playerBCollider.rect.w = 64;
     playerBCollider.rect.h = 64;
 
-    playerB.addComponent<PlayerTag>();
+    playerB.addComponent<PlayerTag>( 1 );
     playerB.addComponent<Projectile>();
 
     // Set up camera
-    Camera camera = gameplayScene.createCamera();
+    Camera& camera = gameplayScene.createCamera();
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
     camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
     camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
@@ -105,6 +108,7 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_PhysicsSystem>();
     gameplayScene.addSystem<ST_ColliderSyncSystem>();
     gameplayScene.addSystem<ST_CollisionSystem>();
+    gameplayScene.addSystem<ST_ProjectileDestructionSystem>();
 
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
@@ -114,6 +118,7 @@ void ST_Game::init()
         , ST_PhysicsSystem
         , ST_ColliderSyncSystem
         , ST_CollisionSystem
+        , ST_ProjectileDestructionSystem
     >( midground );
 }
 

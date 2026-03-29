@@ -92,7 +92,9 @@ struct Projectile
 };
 
 // ------------ TAGS ---------------- //
-struct PlayerTag {};
+struct PlayerTag {
+    int id;
+};
 struct ActivePlayerTag {};
 struct PendingProjectileTag {};
 struct ProjectileTag {};
