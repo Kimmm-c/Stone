@@ -50,6 +50,83 @@ inline void collisionHandler( const ST_BaseEvent& event )
     }
 }
 
+inline void handleMovement( ST_Entity* entity, const SDL_Event& event )
+{
+    if (!entity->hasComponent<Velocity>()) return;
+
+    auto& velocity = entity->getComponent<Velocity>();
+    const auto key = event.key.key;
+
+    const bool isLeft = (key == SDLK_A || key == SDLK_LEFT);
+    const bool isRight = (key == SDLK_D || key == SDLK_RIGHT);
+
+    if (event.type == SDL_EVENT_KEY_DOWN)
+    {
+        if (isLeft)       velocity.direction.x = -1.0f;
+        else if (isRight) velocity.direction.x = 1.0f;
+    }
+    else if (event.type == SDL_EVENT_KEY_UP)
+    {
+        if (isLeft || isRight)
+            velocity.direction.x = 0.0f;
+    }
+}
+
+inline void handleProjectileControl( ST_Entity* entity, const SDL_Event& event )
+{
+    if (!entity->hasComponent<Projectile>()) return;
+
+    auto& projectile = entity->getComponent<Projectile>();
+    const auto key = event.key.key;
+
+    const bool isUp = (key == SDLK_W || key == SDLK_UP);
+    const bool isDown = (key == SDLK_S || key == SDLK_DOWN);
+    const bool isShift = (key == SDLK_LSHIFT || key == SDLK_RSHIFT);
+
+    if (event.type == SDL_EVENT_KEY_DOWN)
+    {
+        if (isUp)
+            projectile.angle = std::clamp( projectile.angle + 1, 0, 89 );
+        else if (isDown)
+            projectile.angle = std::clamp( projectile.angle - 1, 0, 89 );
+        else if (isShift)
+        {
+            int nextForce = projectile.currentForce + 50;
+            if (nextForce > projectile.force.max)
+                nextForce = projectile.force.min;
+
+            projectile.currentForce = nextForce;
+        }
+    }
+}
+
+inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent& playerEvent )
+{
+    if (!entity->hasComponent<Projectile>() || !entity->hasComponent<Transform>())
+        return;
+
+    const auto& keyEvent = playerEvent.context.event;
+    const auto key = keyEvent.key.key;
+
+    const bool isShift = (key == SDLK_LSHIFT || key == SDLK_RSHIFT);
+
+    if (keyEvent.type == SDL_EVENT_KEY_UP && isShift)
+    {
+        auto& projectile = entity->getComponent<Projectile>();
+        auto& transform = entity->getComponent<Transform>();
+
+        ST_Entity& projectileEntity = playerEvent.layer.createEntity();
+        projectileEntity.addComponent<PendingProjectileTag>();
+        projectileEntity.addComponent<Projectile>( projectile );
+
+        Transform& projTransform = projectileEntity.addComponent<Transform>();
+
+        // TODO: replace hardcoded size
+        projTransform.position.x = transform.position.x + 16.0f;
+        projTransform.position.y = transform.position.y + 16.0f;
+    }
+}
+
 /*
 * Player 1                              |Player 2
 * Movement control: A/D                 |Movement control: Left/Right arrow
@@ -63,68 +140,9 @@ inline void playerActionHandler( const ST_BaseEvent& event )
     const auto& playerEvent = static_cast<const ST_PlayerActionEvent&>(event);
     ST_Entity* entity = playerEvent.entity;
 
-    if (entity->hasComponent<Transform>() && entity->hasComponent<Velocity>()) {
-        auto& transform = entity->getComponent<Transform>();
-        auto& velocity = entity->getComponent<Velocity>();
+    const auto& keyEvent = playerEvent.context.event;
 
-        // Move the player horizontally OR update projectile's properties when key is pressed
-        if (playerEvent.context.event.type == SDL_EVENT_KEY_DOWN) {
-            // If KeyCode is A/LeftArrow, move the entity to the left
-            if (playerEvent.context.event.key.key == SDLK_A || playerEvent.context.event.key.key == SDLK_LEFT) {
-                velocity.direction.x = -1.0f;
-            }
-            // If KeyCode is D/RightArrow, move the entity to the right
-            else if (playerEvent.context.event.key.key == SDLK_D || playerEvent.context.event.key.key == SDLK_RIGHT) {
-                velocity.direction.x = 1.0f;
-            }
-
-            if (entity->hasComponent<Projectile>()) {
-                auto& projectile = entity->getComponent<Projectile>();
-
-                // Input: W/UpArrow -> Increase projectile's shooting angle
-                if (playerEvent.context.event.key.key == SDLK_W || playerEvent.context.event.key.key == SDLK_UP) {
-                    projectile.angle = std::clamp( projectile.angle + 1, 0, 89 );
-                }
-                // Input: S/DownArrow -> Decrease projectile's shooting angle
-                else if (playerEvent.context.event.key.key == SDLK_S || playerEvent.context.event.key.key == SDLK_DOWN) {
-                    projectile.angle = std::clamp( projectile.angle - 1, 0, 89 );
-                }
-                // Input: SpaceBar -> Update projectile's shooting power
-                else if (playerEvent.context.event.key.key == SDLK_LSHIFT || playerEvent.context.event.key.key == SDLK_RSHIFT) {
-                    int nextForce = projectile.currentForce + 50;
-
-                    if (nextForce > projectile.force.max) {
-                        nextForce = projectile.force.min;
-                    }
-
-                    projectile.currentForce = nextForce;
-                }
-            }
-        }
-        else if (playerEvent.context.event.type == SDL_EVENT_KEY_UP) {
-            // Reset horizontal movement to 0 when key is released
-            if (playerEvent.context.event.key.key == SDLK_A
-                 || playerEvent.context.event.key.key == SDLK_LEFT
-                 || playerEvent.context.event.key.key == SDLK_D
-                 || playerEvent.context.event.key.key == SDLK_RIGHT) {
-                velocity.direction.x = 0.0f;
-            }
-
-            if (entity->hasComponent<Projectile>()) {
-                auto projectile = entity->getComponent<Projectile>();
-
-                // Spawn the projectile
-                if (playerEvent.context.event.key.key == SDLK_LSHIFT || playerEvent.context.event.key.key == SDLK_RSHIFT) {
-                    ST_Entity& projectileEntity = playerEvent.layer.createEntity();
-                    projectileEntity.addComponent<PendingProjectileTag>();
-                    projectileEntity.addComponent<Projectile>( projectile );
-
-                    Transform& projTransform = projectileEntity.addComponent<Transform>();
-                    // TODO: Replace hard coded width/height
-                    projTransform.position.x = transform.position.x + 32.0f / 2.0f;
-                    projTransform.position.y = transform.position.y + 32.0f / 2.0f;
-                }
-            }
-        }
-    }
+    handleMovement( entity, keyEvent );
+    handleProjectileControl( entity, keyEvent );
+    handleProjectileSpawn( entity, playerEvent );
 }
