@@ -41,19 +41,23 @@ void ST_Game::init()
 {
     // create a scene
     ST_Scene& gameplayScene = m_SceneManager->loadScene( "gameplay", true );
+
+    // Set up background layer
     ST_Layer& background = gameplayScene.createLayer();
 
-    ST_MapManager::loadMap
-    (
-        { assetPath + "maps/background.tmx", 32, 32, false, background }
-        , { ST_TextureManager::load( assetPath + "spritesheet.png" ), 2, 2 }
-    );
+    ST_Entity& spriteHolder = background.createEntity();
+    spriteHolder.addComponent<Transform>( ST_Vector2D( 0.0f, 0.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    SDL_Texture* bgTexture = ST_TextureManager::load( assetPath + "starry-night-bg.jpg" );
+    SDL_FRect bgSrc{ 0, 0, 1600, 1200 };
+    SDL_FRect bgDst{ 0, 0, 800, 600 };
+    spriteHolder.addComponent<Sprite>( bgTexture, bgSrc, bgDst );
 
+    // Set up midground layer
     ST_Layer& midground = gameplayScene.createLayer();
     ST_MapManager::loadMap
     (
-        { assetPath + "maps/midground.tmx", 32, 32, true, midground, "tile" }
-        , { ST_TextureManager::load( assetPath + "spritesheet.png" ), 2, 2 }
+        { assetPath + "maps/midground.tmx", 64, 64, true, midground, "tile" }
+        , { ST_TextureManager::load( assetPath + "ground.png" ), 1, 1 }
     );
 
     // create player A
@@ -67,8 +71,9 @@ void ST_Game::init()
     playerA.addComponent<Sprite>( playerTexture, playerASrc, playerADst );
 
     Collider& playerACollider = playerA.addComponent<Collider>( "player" );
-    playerACollider.rect.w = 64;
-    playerACollider.rect.h = 64;
+    int offset = 5;
+    playerACollider.rect.w = 64 - offset;
+    playerACollider.rect.h = 64 - offset;
 
     playerA.addComponent<PlayerTag>( 0 );
     playerA.addComponent<Projectile>();
@@ -84,18 +89,27 @@ void ST_Game::init()
     playerB.addComponent<Sprite>( playerTexture, playerBSrc, playerBDst );
 
     Collider& playerBCollider = playerB.addComponent<Collider>( "player" );
-    playerBCollider.rect.w = 64;
-    playerBCollider.rect.h = 64;
+    playerBCollider.rect.w = 64 - offset;
+    playerBCollider.rect.h = 64 - offset;
 
     playerB.addComponent<PlayerTag>( 1 );
     playerB.addComponent<Projectile>();
     playerB.addComponent<Health>( 1000 );
 
+    // Set up foreground layer (for UI elements)
+    ST_Layer& foreground = gameplayScene.createLayer();
+
+    // Create shooting angle indicators
+
+    // Create power bar indicators
+
+    // Create health bars
+
     // Set up camera
     Camera& camera = gameplayScene.createCamera();
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
-    camera.worldWidth = static_cast<float>(m_Window->getWidth() * 2);
-    camera.worldHeight = static_cast<float>(m_Window->getHeight() * 2);
+    camera.worldWidth = 1280.0f;
+    camera.worldHeight = 640.0f;
 
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
