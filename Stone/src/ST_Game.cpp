@@ -9,6 +9,7 @@
 #include "ST_MovementSystem.h"
 #include "ST_TurnManagementSystem.h"
 #include "ST_ProjectileDestructionSystem.h"
+#include "ST_PowerBarUISyncSystem.h"
 #include "ST_GameStateSystem.h"
 #include "ST_EventHandler.h"
 
@@ -59,6 +60,9 @@ void ST_Game::init()
         , { ST_TextureManager::load( assetPath + "ground.png" ), 1, 1 }
     );
 
+    int playerAid = 0;
+    int playerBid = 1;
+
     // create player A
     ST_Entity& playerA = midground.createEntity();
     playerA.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
@@ -74,7 +78,7 @@ void ST_Game::init()
     playerACollider.rect.w = 64 - offset;
     playerACollider.rect.h = 64 - offset;
 
-    playerA.addComponent<PlayerTag>( 0 );
+    playerA.addComponent<PlayerTag>( playerAid );
     playerA.addComponent<Projectile>();
     playerA.addComponent<Health>( 1000 );
 
@@ -91,7 +95,7 @@ void ST_Game::init()
     playerBCollider.rect.w = 64 - offset;
     playerBCollider.rect.h = 64 - offset;
 
-    playerB.addComponent<PlayerTag>( 1 );
+    playerB.addComponent<PlayerTag>( playerBid );
     playerB.addComponent<Projectile>();
     playerB.addComponent<Health>( 1000 );
 
@@ -100,7 +104,43 @@ void ST_Game::init()
 
     // Create shooting angle indicators
 
-    // Create power bar indicators
+    // Create power bars UI
+    ST_Entity& barGradientA = midground.createEntity();
+    ST_Entity& barOutlineA = midground.createEntity();
+    ST_Entity& barGradientB = midground.createEntity();
+    ST_Entity& barOutlineB = midground.createEntity();
+
+    float barSrcWidth = 416.0f;
+    float barSrcHeight = 32.0f;
+    float barWidthOffsetA = 5.0f;
+    float barWidthOffsetB = m_Window->getWidth() - (barSrcWidth + 5.0f);
+    float barHeightOffset = 32.0f;
+
+    SDL_Texture* gradientTexture = ST_TextureManager::load( assetPath + "power-bar-gradient.PNG" );
+    SDL_FRect gradientTextureSrc{ 0, 0, 0, 0 };
+    SDL_FRect gradientTextureDest{ 0, 0, barSrcWidth,barSrcHeight };
+
+    SDL_Texture* outlineTexture = ST_TextureManager::load( assetPath + "power-bar-outline.PNG" );
+    SDL_FRect outlineTextureSrc{ 0, 0, barSrcWidth,barSrcHeight };
+    SDL_FRect outlineTextureDest{ 0, 0, barSrcWidth,barSrcHeight };
+
+    ST_Vector2D barFixedDimension{ barSrcWidth, barSrcHeight };
+
+    // Player A's power bar
+    barGradientA.addComponent<Sprite>( gradientTexture, gradientTextureSrc, gradientTextureDest, barFixedDimension );
+    barOutlineA.addComponent<Sprite>( outlineTexture, outlineTextureSrc, outlineTextureDest );
+    barGradientA.addComponent<Transform>( ST_Vector2D( barWidthOffsetA, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    barOutlineA.addComponent<Transform>( ST_Vector2D( barWidthOffsetA, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    barGradientA.addComponent<PowerBarTag>( playerAid );
+
+    // Player B's power bar
+    barGradientB.addComponent<Sprite>( gradientTexture, gradientTextureSrc, gradientTextureDest, barFixedDimension );
+    barOutlineB.addComponent<Sprite>( outlineTexture, outlineTextureSrc, outlineTextureDest );
+    barGradientB.addComponent<Transform>( ST_Vector2D( barWidthOffsetB, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    barOutlineB.addComponent<Transform>( ST_Vector2D( barWidthOffsetB, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    barGradientB.addComponent<PowerBarTag>( playerBid );
 
     // Create health bars
 
@@ -118,6 +158,7 @@ void ST_Game::init()
 
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
+    gameplayScene.addSystem<ST_PowerBarUISyncSystem>();
     gameplayScene.addSystem<ST_TurnManagementSystem>();
     gameplayScene.addSystem<ST_MovementSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
@@ -129,6 +170,7 @@ void ST_Game::init()
 
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
+        , ST_PowerBarUISyncSystem
         , ST_TurnManagementSystem
         , ST_MovementSystem
         , ST_ProjectileSpawnSystem

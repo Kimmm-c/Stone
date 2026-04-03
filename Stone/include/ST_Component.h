@@ -34,6 +34,8 @@ struct Sprite
     SDL_Texture* texture = nullptr;
     SDL_FRect src{};
     SDL_FRect dest{};
+
+    ST_Vector2D fixedDimension{};
 };
 
 struct Collider
@@ -74,9 +76,9 @@ struct Force
 struct Projectile
 {
     int angle = 30;
-    int forceIncrement = 5;
+    int forceIncrement = 10;
 
-    Force force{ 0, 1000 };
+    Force force{ 10, 1000 };
     int currentForce = force.min;
 };
 
@@ -99,6 +101,10 @@ struct GameStateComponent
 
 // ------------ TAGS ---------------- //
 struct PlayerTag
+{
+    int id;
+};
+struct PowerBarTag
 {
     int id;
 };
