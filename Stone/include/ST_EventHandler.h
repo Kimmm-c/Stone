@@ -92,14 +92,24 @@ inline void handleProjectileControl( ST_Entity* entity, const SDL_Event& event )
     if (event.type == SDL_EVENT_KEY_DOWN)
     {
         if (isUp)
-            projectile.angle = std::clamp( projectile.angle + 1, 0, 89 );
+            projectile.angle = std::clamp
+            (
+                projectile.angle + 1,
+                static_cast<int>(projectile.angleRange.x),
+                static_cast<int>(projectile.angleRange.y)
+            );
         else if (isDown)
-            projectile.angle = std::clamp( projectile.angle - 1, 0, 89 );
+            projectile.angle = std::clamp
+            (
+                projectile.angle - 1,
+                static_cast<int>(projectile.angleRange.x),
+                static_cast<int>(projectile.angleRange.y)
+            );
         else if (isShift)
         {
             int nextForce = projectile.currentForce + projectile.forceIncrement;
-            if (nextForce > projectile.force.max)
-                nextForce = projectile.force.min;
+            if (nextForce > projectile.forceRange.y)
+                nextForce = projectile.forceRange.x;
 
             projectile.currentForce = nextForce;
         }

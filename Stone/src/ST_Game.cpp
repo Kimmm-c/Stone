@@ -10,6 +10,7 @@
 #include "ST_TurnManagementSystem.h"
 #include "ST_ProjectileDestructionSystem.h"
 #include "ST_PowerBarUISyncSystem.h"
+#include "ST_ShootingAngleUISyncSystem.h"
 #include "ST_GameStateSystem.h"
 #include "ST_EventHandler.h"
 
@@ -43,14 +44,21 @@ void ST_Game::init()
     // create a scene
     ST_Scene& gameplayScene = m_SceneManager->loadScene( "gameplay", true );
 
+    // Set up camera
+    Camera& camera = gameplayScene.createCamera();
+    camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
+    camera.worldWidth = m_Window->getWidth() * 2;
+    camera.worldHeight = m_Window->getHeight() + 128.0f;
+
     // Set up background layer
     ST_Layer& background = gameplayScene.createLayer();
 
     ST_Entity& spriteHolder = background.createEntity();
     SDL_Texture* bgTexture = ST_TextureManager::load( assetPath + "starry-night-bg.jpg" );
-    SDL_FRect bgSrc{ 0, 0, m_Window->getWidth(), m_Window->getHeight() };
+    SDL_FRect bgSrc{ 0, 0, 1600, 1200 };
     SDL_FRect bgDst{ 0, 0, m_Window->getWidth(), m_Window->getHeight() };
     spriteHolder.addComponent<Sprite>( bgTexture, bgSrc, bgDst );
+    spriteHolder.addComponent<Transform>( ST_Vector2D( 0.0f, 0.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
 
     // Set up midground layer
     ST_Layer& midground = gameplayScene.createLayer();
@@ -65,7 +73,8 @@ void ST_Game::init()
 
     // create player A
     ST_Entity& playerA = midground.createEntity();
-    playerA.addComponent<Transform>( ST_Vector2D( 10.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    ST_Vector2D playerAPos{ 10.0f, 10.0f };
+    playerA.addComponent<Transform>( playerAPos, ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     playerA.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
     SDL_Texture* playerTexture = ST_TextureManager::load( assetPath + "mario.png" );
@@ -84,7 +93,8 @@ void ST_Game::init()
 
     // create player B
     ST_Entity& playerB = midground.createEntity();
-    playerB.addComponent<Transform>( ST_Vector2D( 300.0f, 10.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    ST_Vector2D playerBPos{ 300.0f, 10.0f };
+    playerB.addComponent<Transform>( playerBPos, ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     playerB.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
     SDL_FRect playerBSrc{ 0, 0, 32,32 };
@@ -102,9 +112,50 @@ void ST_Game::init()
     // Set up foreground layer (for UI elements)
     ST_Layer& foreground = gameplayScene.createLayer();
 
-    // Create shooting angle indicators
+    // Create shooting angle UI elements
+    ST_Entity& anglePointertA = midground.createEntity();
+    ST_Entity& angleFrameA = midground.createEntity();
+    ST_Entity& anglePointertB = midground.createEntity();
+    ST_Entity& angleFrameB = midground.createEntity();
 
-    // Create power bars UI
+    ST_Vector2D pointerTexDimension{ 7.0f, 7.0f };
+    ST_Vector2D frameTexDimension{ 128.0f, 128.0f };
+
+    SDL_Texture* pointerTexture = ST_TextureManager::load( assetPath + "angle-pointer.PNG" );
+    SDL_FRect pointerDim{ 0, 0, pointerTexDimension.x, pointerTexDimension.y };
+
+    SDL_Texture* frameTexture = ST_TextureManager::load( assetPath + "angle-frame.PNG" );
+    SDL_FRect frameDim{ 0, 0, frameTexDimension.x, frameTexDimension.y };
+
+    // Player A's shooting angle UI
+    float pointerAX = (playerAPos.x + 64.0f) / 2.0f;
+    float pointerAY = (playerAPos.y + 64.0f) / 2.0f;
+    float frameAX = playerAPos.x - 64.0f;
+    float frameAY = playerAPos.y - 64.0f;
+
+    anglePointertA.addComponent<Sprite>( pointerTexture, pointerDim, pointerDim );
+    angleFrameA.addComponent<Sprite>( frameTexture, frameDim, frameDim );
+    anglePointertA.addComponent<Transform>( ST_Vector2D( pointerAX, pointerAY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    angleFrameA.addComponent<Transform>( ST_Vector2D( frameAX, frameAY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    anglePointertA.addComponent<AnglePointerUI>( playerAid, 50.0f );
+    angleFrameA.addComponent<AngleFrameUITag>( playerAid );
+
+    // Player B's shooting angle UI
+    float pointerBX = (playerBPos.x + 64.0f) / 2.0f;
+    float pointerBY = (playerBPos.y + 64.0f) / 2.0f;
+    float frameBX = playerBPos.x - 64.0f;
+    float frameBY = playerBPos.y - 64.0f;
+
+    anglePointertB.addComponent<Sprite>( pointerTexture, pointerDim, pointerDim );
+    angleFrameB.addComponent<Sprite>( frameTexture, frameDim, frameDim );
+    anglePointertB.addComponent<Transform>( ST_Vector2D( pointerBX, pointerBY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    angleFrameB.addComponent<Transform>( ST_Vector2D( frameBX, frameBY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    anglePointertB.addComponent<AnglePointerUI>( playerBid, 50.0f );
+    angleFrameB.addComponent<AngleFrameUITag>( playerBid );
+
+    // Create shooting power UI elements
     ST_Entity& barGradientA = midground.createEntity();
     ST_Entity& barOutlineA = midground.createEntity();
     ST_Entity& barGradientB = midground.createEntity();
@@ -144,11 +195,7 @@ void ST_Game::init()
 
     // Create health bars
 
-    // Set up camera
-    Camera& camera = gameplayScene.createCamera();
-    camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
-    camera.worldWidth = m_Window->getWidth() * 2;
-    camera.worldHeight = m_Window->getHeight() + 128.0f;
+
 
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
@@ -159,6 +206,7 @@ void ST_Game::init()
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
     gameplayScene.addSystem<ST_PowerBarUISyncSystem>();
+    gameplayScene.addSystem<ST_ShootingAngleUISyncSystem>();
     gameplayScene.addSystem<ST_TurnManagementSystem>();
     gameplayScene.addSystem<ST_MovementSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
@@ -171,6 +219,7 @@ void ST_Game::init()
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
         , ST_PowerBarUISyncSystem
+        , ST_ShootingAngleUISyncSystem
         , ST_TurnManagementSystem
         , ST_MovementSystem
         , ST_ProjectileSpawnSystem

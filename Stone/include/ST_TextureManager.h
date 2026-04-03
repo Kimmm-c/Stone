@@ -13,6 +13,7 @@ struct RenderContext
     SDL_Texture* texture;
     SDL_FRect* src;
     SDL_FRect* dest;
+    SDL_FlipMode flip;
 };
 
 class ST_TextureManager

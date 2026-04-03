@@ -33,7 +33,7 @@ public:
                 //    sprite.src = clip.frameIndices[animation.currentFrame];
                 //}
 
-                RenderContext context{ sprite.texture, &sprite.src, &sprite.dest };
+                RenderContext context{ sprite.texture, &sprite.src, &sprite.dest, sprite.flip };
                 ST_TextureManager::draw( context );
             }
 

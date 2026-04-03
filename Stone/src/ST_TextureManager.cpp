@@ -51,7 +51,17 @@ SDL_Texture* ST_TextureManager::load( const char* path )
 // FRect is used for floating point rectangle (x, y, w, h)
 void ST_TextureManager::draw( const RenderContext& context )
 {
-    SDL_RenderTexture( m_Renderer->getNativeRenderer(), context.texture, context.src, context.dest );
+    if (context.flip == SDL_FLIP_NONE)
+        SDL_RenderTexture( m_Renderer->getNativeRenderer(), context.texture, context.src, context.dest );
+    else if (context.flip == SDL_FLIP_HORIZONTAL)
+        SDL_RenderTextureRotated(
+            m_Renderer->getNativeRenderer(),
+            context.texture,
+            context.src,
+            context.dest,
+            0.0,            // Rotation angle
+            NULL,           // center point
+            context.flip );
 }
 
 void ST_TextureManager::clean()

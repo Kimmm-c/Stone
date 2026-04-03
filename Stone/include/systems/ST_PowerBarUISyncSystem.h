@@ -28,8 +28,8 @@ public:
 
         // map the projectile's current force to percentage of the power bar
         Projectile projectile = player->getComponent<Projectile>();
-        Force forceRange = projectile.force;
-        float percentage = static_cast<float>(projectile.currentForce - forceRange.min) / static_cast<float>(forceRange.max - forceRange.min);
+        ST_Vector2D forceRange = projectile.forceRange;
+        float percentage = static_cast<float>(projectile.currentForce - forceRange.x) / static_cast<float>(forceRange.y - forceRange.x);
 
         // Get the power bar associating with the player
         for (auto& entity : entities) {

@@ -36,6 +36,8 @@ struct Sprite
     SDL_FRect dest{};
 
     ST_Vector2D fixedDimension{};
+
+    SDL_FlipMode flip = SDL_FLIP_NONE;
 };
 
 struct Collider
@@ -66,20 +68,22 @@ struct MapTile
     int col{};  // Col index of the tile in the 2D map matrix
 };
 
-
-struct Force
-{
-    int min;
-    int max;
-};
-
 struct Projectile
 {
     int angle = 30;
     int forceIncrement = 10;
 
-    Force force{ 10, 1000 };
-    int currentForce = force.min;
+    ST_Vector2D forceRange{ 10, 1000 };
+    ST_Vector2D angleRange{ 0, 89 };
+
+    int currentForce = static_cast<int>(forceRange.x);
+};
+
+struct AnglePointerUI
+{
+    int id{};
+
+    float distFromPlayer{};
 };
 
 struct Health
@@ -105,6 +109,10 @@ struct PlayerTag
     int id;
 };
 struct PowerBarTag
+{
+    int id;
+};
+struct AngleFrameUITag
 {
     int id;
 };
