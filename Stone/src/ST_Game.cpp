@@ -46,10 +46,9 @@ void ST_Game::init()
     ST_Layer& background = gameplayScene.createLayer();
 
     ST_Entity& spriteHolder = background.createEntity();
-    spriteHolder.addComponent<Transform>( ST_Vector2D( 0.0f, 0.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     SDL_Texture* bgTexture = ST_TextureManager::load( assetPath + "starry-night-bg.jpg" );
-    SDL_FRect bgSrc{ 0, 0, 1600, 1200 };
-    SDL_FRect bgDst{ 0, 0, 800, 600 };
+    SDL_FRect bgSrc{ 0, 0, m_Window->getWidth(), m_Window->getHeight() };
+    SDL_FRect bgDst{ 0, 0, m_Window->getWidth(), m_Window->getHeight() };
     spriteHolder.addComponent<Sprite>( bgTexture, bgSrc, bgDst );
 
     // Set up midground layer
@@ -108,8 +107,8 @@ void ST_Game::init()
     // Set up camera
     Camera& camera = gameplayScene.createCamera();
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
-    camera.worldWidth = 1280.0f;
-    camera.worldHeight = 640.0f;
+    camera.worldWidth = m_Window->getWidth() * 2;
+    camera.worldHeight = m_Window->getHeight() + 128.0f;
 
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );

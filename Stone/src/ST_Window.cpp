@@ -4,7 +4,7 @@ ST_Window::ST_Window( const char* title, int width, int height, bool fullscreen 
     : m_Width( width )
     , m_Height( height )
 {
-    Uint32 flags = SDL_WINDOW_RESIZABLE;
+    Uint32 flags = 0;
 
     if (fullscreen)
     {
