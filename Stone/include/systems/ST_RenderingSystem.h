@@ -31,12 +31,12 @@ public:
                 sprite.dest.x = transform.position.x - camera->view.x;
                 sprite.dest.y = transform.position.y - camera->view.y;
 
-                //// If the entity has an animation component, we need to update the source rect to reflect the current frame of the animation
-                //if (entity->hasComponent<Animation>()) {
-                //    auto& animation = entity->getComponent<Animation>();
-                //    AnimationClip clip = animation.clips[animation.currentClip];
-                //    sprite.src = clip.frameIndices[animation.currentFrame];
-                //}
+                // If the entity has an animation component, we need to update the source rect to reflect the current frame of the animation
+                if (entity->hasComponent<Animation>()) {
+                    auto& animation = entity->getComponent<Animation>();
+                    ST_AnimationClip clip = animation.clips[animation.currentClip];
+                    sprite.src = clip.frameIndices[animation.currentFrame];
+                }
 
                 RenderContext context{ sprite.texture, &sprite.src, &sprite.dest, sprite.flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE };
                 ST_TextureManager::draw( context );

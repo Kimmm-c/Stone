@@ -7,6 +7,7 @@
 
 #include "ST_Vector2D.h"
 #include "ST_Entity.h"
+#include "ST_AnimationClip.h"
 
 struct Transform
 {
@@ -46,14 +47,14 @@ struct Collider
     SDL_FRect rect{};
 };
 
-//struct Animation
-//{
-//    std::unordered_map<std::string, AnimationClip> clips{};
-//    std::string currentClip{};
-//    float time{};   // time is accumulated for the current frame
-//    int currentFrame{}; // index of the current frame in the current clip
-//    float speed = 0.1f;
-//};
+struct Animation
+{
+    std::unordered_map<std::string, ST_AnimationClip> clips{};
+    std::string currentClip{};
+    float time{};       // time is accumulated for the current frame
+    int currentFrame{}; // index of the current frame in the current clip
+    float speed = 0.1f;
+};
 
 struct Camera
 {

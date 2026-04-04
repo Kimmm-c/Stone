@@ -16,7 +16,9 @@
 #include "ST_GameStateSystem.h"
 #include "ST_CameraSystem.h"
 #include "ST_ScreenUISystem.h"
+#include "ST_AnimationSystem.h"
 #include "ST_EventHandler.h"
+#include "ST_AssetManager.h"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -83,13 +85,8 @@ void ST_Game::init()
     playerA.addComponent<Transform>( playerAPos, ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     playerA.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
-    SDL_Texture* playerTexture = ST_TextureManager::load( assetPath + "mario.png" );
-    SDL_FRect playerASrc{ 0, 0, 32,32 };
-    SDL_FRect playerADst{ 0, 0, 64, 64 };
-    playerA.addComponent<Sprite>( playerTexture, playerASrc, playerADst );
-
     Collider& playerACollider = playerA.addComponent<Collider>( "player" );
-    int offset = 5;
+    int offset = 10;
     playerACollider.rect.w = 64 - offset;
     playerACollider.rect.h = 64 - offset;
 
@@ -97,15 +94,21 @@ void ST_Game::init()
     playerA.addComponent<Projectile>( playerAid );
     playerA.addComponent<Health>( healthRange );
 
+    const char* animationNameA = "bald";
+    ST_AssetManager::loadAnimation( animationNameA, assetPath + "animations/bald-walk-animation.xml" );
+    Animation animationA = ST_AssetManager::getAnimation( animationNameA );
+    playerA.addComponent<Animation>( animationA );
+
+    SDL_Texture* playerATexture = ST_TextureManager::load( assetPath + "animations/bald-walk-animation.png" );
+    SDL_FRect playerASrc = animationA.clips[animationA.currentClip].frameIndices[0];
+    SDL_FRect playerADst{ 0, 0, 64, 64 };
+    playerA.addComponent<Sprite>( playerATexture, playerASrc, playerADst );
+
     // create player B
     ST_Entity& playerB = midground.createEntity();
     ST_Vector2D playerBPos{ 300.0f, 10.0f };
     playerB.addComponent<Transform>( playerBPos, ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     playerB.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
-
-    SDL_FRect playerBSrc{ 0, 0, 32,32 };
-    SDL_FRect playerBDst{ 0, 0, 64, 64 };
-    playerB.addComponent<Sprite>( playerTexture, playerBSrc, playerBDst );
 
     Collider& playerBCollider = playerB.addComponent<Collider>( "player" );
     playerBCollider.rect.w = 64 - offset;
@@ -114,6 +117,16 @@ void ST_Game::init()
     playerB.addComponent<PlayerTag>( playerBid );
     playerB.addComponent<Projectile>( playerBid );
     playerB.addComponent<Health>( healthRange );
+
+    const char* animationNameB = "red-eye";
+    ST_AssetManager::loadAnimation( animationNameB, assetPath + "animations/red-eye-animation.xml" );
+    Animation animationB = ST_AssetManager::getAnimation( animationNameB );
+    playerB.addComponent<Animation>( animationB );
+
+    SDL_Texture* playerBTexture = ST_TextureManager::load( assetPath + "animations/red-eye-animation.png" );
+    SDL_FRect playerBSrc = animationB.clips[animationB.currentClip].frameIndices[0];
+    SDL_FRect playerBDst{ 0, 0, 64, 64 };
+    playerB.addComponent<Sprite>( playerBTexture, playerBSrc, playerBDst );
 
     // Set up foreground layer (for UI elements)
     ST_Layer& foreground = gameplayScene.createLayer();
@@ -247,6 +260,7 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
     gameplayScene.addSystem<ST_TurnManagementSystem>();
     gameplayScene.addSystem<ST_MovementSystem>();
+    gameplayScene.addSystem<ST_AnimationSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
     gameplayScene.addSystem<ST_PhysicsSystem>();
     gameplayScene.addSystem<ST_PowerBarUISyncSystem>();
@@ -264,6 +278,7 @@ void ST_Game::init()
         ST_KeyboardInputSystem
         , ST_TurnManagementSystem
         , ST_MovementSystem
+        , ST_AnimationSystem
         , ST_ProjectileSpawnSystem
         , ST_PhysicsSystem
         , ST_PowerBarUISyncSystem
