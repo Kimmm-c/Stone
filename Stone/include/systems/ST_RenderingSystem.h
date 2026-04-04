@@ -17,7 +17,12 @@ public:
             if (!entity->isActive())
                 continue;
 
-            if (entity->hasComponent<Transform>() && entity->hasComponent<Sprite>() && !entity->hasComponent<MapTile>()) {
+            if (
+                entity->hasComponent<Transform>()
+                && entity->hasComponent<Sprite>()
+                && !entity->hasComponent<MapTile>()
+                )
+            {
                 auto& transform = entity->getComponent<Transform>();
                 auto& sprite = entity->getComponent<Sprite>();
 

@@ -14,6 +14,8 @@
 #include "ST_HealthUISyncSystem.h"
 #include "ST_HealthDamageSystem.h"
 #include "ST_GameStateSystem.h"
+#include "ST_CameraSystem.h"
+#include "ST_ScreenUISystem.h"
 #include "ST_EventHandler.h"
 
 #include <SDL3/SDL.h>
@@ -191,6 +193,10 @@ void ST_Game::init()
 
     barGradientA.addComponent<PowerBarTag>( playerAid );
 
+    ST_Vector2D fixedPowerUIPositionA{ barWidthOffsetA, barHeightOffset };
+    barGradientA.addComponent<ScreenSpaceUI>( fixedPowerUIPositionA );
+    barOutlineA.addComponent<ScreenSpaceUI>( fixedPowerUIPositionA );
+
     // Player B's power bar
     barGradientB.addComponent<Sprite>( gradientTexture, gradientTextureSrc, gradientTextureDest, barFixedDimension );
     barOutlineB.addComponent<Sprite>( outlineTexture, outlineTextureSrc, outlineTextureDest );
@@ -198,6 +204,10 @@ void ST_Game::init()
     barOutlineB.addComponent<Transform>( ST_Vector2D( barWidthOffsetB, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
 
     barGradientB.addComponent<PowerBarTag>( playerBid );
+
+    ST_Vector2D fixedPowerUIPositionB{ barWidthOffsetB, barHeightOffset };
+    barGradientB.addComponent<ScreenSpaceUI>( fixedPowerUIPositionB );
+    barOutlineB.addComponent<ScreenSpaceUI>( fixedPowerUIPositionB );
 
     // Create health bars
     ST_Entity& healthBarA = midground.createEntity();
@@ -216,10 +226,16 @@ void ST_Game::init()
     healthBarA.addComponent<Transform>( ST_Vector2D( healthWidthOffsetA, healthHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     healthBarA.addComponent<HealthUITag>( playerAid );
 
+    ST_Vector2D fixedHealthUIPositionA{ healthWidthOffsetA, healthHeightOffset };
+    healthBarA.addComponent<ScreenSpaceUI>( fixedHealthUIPositionA );
+
     // Create playerB's health UI
     healthBarB.addComponent<Sprite>( healthTexture, healthDim, healthDim, fixedHealthDim, true );
     healthBarB.addComponent<Transform>( ST_Vector2D( healthWidthOffsetB, healthHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     healthBarB.addComponent<HealthUITag>( playerBid );
+
+    ST_Vector2D fixedHealthUIPositionB{ healthWidthOffsetB, healthHeightOffset };
+    healthBarB.addComponent<ScreenSpaceUI>( fixedHealthUIPositionB );
 
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
@@ -240,6 +256,8 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_HealthDamageSystem>();
     gameplayScene.addSystem<ST_ProjectileDestructionSystem>();
     gameplayScene.addSystem<ST_HealthUISyncSystem>();
+    gameplayScene.addSystem<ST_CameraSystem>();
+    gameplayScene.addSystem<ST_ScreenUISystem>();
     gameplayScene.addSystem<ST_GameStateSystem>();
 
     gameplayScene.registerLayer<
@@ -255,6 +273,8 @@ void ST_Game::init()
         , ST_HealthDamageSystem
         , ST_ProjectileDestructionSystem
         , ST_HealthUISyncSystem
+        , ST_CameraSystem
+        , ST_ScreenUISystem
         , ST_GameStateSystem
     >( midground );
 }

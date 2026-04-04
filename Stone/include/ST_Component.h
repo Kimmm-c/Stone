@@ -112,6 +112,11 @@ struct GameStateComponent
     ST_Entity* winner = nullptr;
 };
 
+struct ScreenSpaceUI
+{
+    ST_Vector2D screenPosition; // fixed UI position
+};
+
 // ------------ TAGS ---------------- //
 struct PlayerTag
 {
