@@ -92,7 +92,7 @@ void ST_Game::init()
     playerACollider.rect.h = 64 - offset;
 
     playerA.addComponent<PlayerTag>( playerAid );
-    playerA.addComponent<Projectile>();
+    playerA.addComponent<Projectile>( playerAid );
     playerA.addComponent<Health>( healthRange );
 
     // create player B
@@ -110,7 +110,7 @@ void ST_Game::init()
     playerBCollider.rect.h = 64 - offset;
 
     playerB.addComponent<PlayerTag>( playerBid );
-    playerB.addComponent<Projectile>();
+    playerB.addComponent<Projectile>( playerBid );
     playerB.addComponent<Health>( healthRange );
 
     // Set up foreground layer (for UI elements)

@@ -52,7 +52,7 @@ inline void collisionHandler( const ST_BaseEvent& event )
 
     // Collision between destructive projectile and player
     if (colliderA.tag == "destructiveProjectile" && colliderB.tag == "player") {
-        if (A->getComponent<PlayerTag>().id == B->getComponent<PlayerTag>().id)
+        if (A->getComponent<Projectile>().id == B->getComponent<PlayerTag>().id)
             return; // ignore self-hit
 
         // get the overlapping area
@@ -67,7 +67,7 @@ inline void collisionHandler( const ST_BaseEvent& event )
         acc.targetPlayer = B;
     }
     else if (colliderA.tag == "player" && colliderB.tag == "destructiveProjectile") {
-        if (A->getComponent<PlayerTag>().id == B->getComponent<PlayerTag>().id)
+        if (A->getComponent<PlayerTag>().id == B->getComponent<Projectile>().id)
             return; // ignore self-hit
 
         // get the overlapping area
@@ -176,7 +176,6 @@ inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent
         projTransform.position.y = transform.position.y + 16.0f;
 
         projectileEntity.addComponent<Velocity>( ST_Vector2D( playerVelocity.facing, 0.0f ) );
-        projectileEntity.addComponent<PlayerTag>( entity->getComponent<PlayerTag>().id ); // To avoid self-destruction when spawning projectile from player's position
     }
 }
 

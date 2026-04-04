@@ -70,6 +70,7 @@ struct MapTile
 
 struct Projectile
 {
+    int id;
     int angle = 30;
     int forceIncrement = 10;
 
@@ -128,9 +129,9 @@ struct HealthUITag
 {
     int id;
 };
+struct ProjectileTag {};
 struct ActivePlayerTag {};
 struct PendingProjectileTag {};
-struct ProjectileTag {};
 struct DestructiveProjectileTag {};
 struct PendingDestroy {};
 struct PendingHealthUIUpdateTag {};

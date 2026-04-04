@@ -13,26 +13,45 @@ public:
     {
         auto& entities = layer.getEntities();
 
-        ST_Entity* player = nullptr;
+        ST_Entity* playerA = nullptr;
+        ST_Entity* playerB = nullptr;
 
-        // Get active player
+        assignPlayers( entities, playerA, playerB );
+
+        if (!playerA && !playerB)
+            return;
+
+        if (playerA)
+            updatePlayerShootingAngleUI( entities, playerA );
+
+        if (playerB)
+            updatePlayerShootingAngleUI( entities, playerB );
+
+    }
+
+private:
+    void assignPlayers( const std::vector<std::unique_ptr<ST_Entity>>& entities, ST_Entity*& playerA, ST_Entity*& playerB )
+    {
         for (auto& entity : entities) {
             if (
-                entity->hasComponent<ActivePlayerTag>()
+                entity->hasComponent<PlayerTag>()
                 && entity->hasComponent<Transform>()
                 && entity->hasComponent<Projectile>()
                 && entity->hasComponent<Velocity>()
                 )
             {
-                player = entity.get();
-                break;
+                int id = entity->getComponent<PlayerTag>().id;
+
+                if (id == 0)
+                    playerA = entity.get();
+                else if (id == 1)
+                    playerB = entity.get();
             }
         }
+    }
 
-        if (!player)
-            return;
-
-
+    void updatePlayerShootingAngleUI( const std::vector<std::unique_ptr<ST_Entity>>& entities, ST_Entity* player )
+    {
         // extract transform and projectile component
         Transform& playerTransform = player->getComponent<Transform>();
         float facingDir = player->getComponent<Velocity>().facing;
