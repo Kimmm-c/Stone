@@ -31,11 +31,15 @@ public:
                 projVelocity.direction = ST_Vector2D( x * projVelocity.direction.x, y ).normalize();
                 projVelocity.speed = projectile.currentForce;
 
-                SDL_Texture* texture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
-                SDL_FRect src{ 0, 0, 32, 32 };
-                SDL_FRect dest{ projTransform.position.x, projTransform.position.y, 32, 32 };
-                entity->addComponent<Sprite>( texture, src, dest );
+                if (!m_ProjectileTexture)
+                    m_ProjectileTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "stone.PNG" );
 
+
+                // TODO: replace hardcoded
+                SDL_FRect src{ 0, 0, 512, 512 };
+                SDL_FRect dest{ projTransform.position.x, projTransform.position.y, 32, 32 };
+
+                entity->addComponent<Sprite>( m_ProjectileTexture, src, dest );
                 Collider& collision = entity->addComponent<Collider>( "destructiveProjectile" );
 
                 collision.rect.w = dest.w;
@@ -47,4 +51,7 @@ public:
             }
         }
     }
+
+private:
+    SDL_Texture* m_ProjectileTexture = nullptr;
 };

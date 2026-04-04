@@ -56,6 +56,11 @@ void ST_Game::init()
     camera.worldWidth = m_Window->getWidth() * 2;
     camera.worldHeight = m_Window->getHeight();
 
+    // Set up sound effects
+    m_AudioManager->loadAudio( "whoosh", assetPath + "audios/sfx/whoosh.mp3" );
+    m_AudioManager->loadAudio( "collision", assetPath + "audios/sfx/collision.mp3" );
+    m_AudioManager->playSfx( "collision" );
+
     // Set up background layer
     ST_Layer& background = gameplayScene.createLayer();
 
