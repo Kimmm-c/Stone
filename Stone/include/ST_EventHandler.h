@@ -7,6 +7,42 @@
 
 #include <algorithm>
 
+inline void resolveTileCollision( ST_Entity* dynamic, ST_Entity* tile )
+{
+    Transform& transform = dynamic->getComponent<Transform>();
+    Velocity& velocity = dynamic->getComponent<Velocity>();
+
+    transform.position = transform.oldPosition;
+
+    if (velocity.direction.y > 0)
+        velocity.direction.y = 0;
+}
+
+inline void handleDestructiveProjectileTileCollision( ST_Entity* A, ST_Entity* B )
+{
+    A->addComponent<PendingDestroy>();
+    B->addComponent<PendingDestroy>();
+}
+
+inline void handleDestructiveProjectilePlayerCollision( ST_Entity* projectile, ST_Entity* player )
+{
+    // ignore self-hit
+    if (projectile->getComponent<Projectile>().id == player->getComponent<PlayerTag>().id)
+        return;
+
+    Collider& projCol = projectile->getComponent<Collider>();
+    Collider& playerCol = player->getComponent<Collider>();
+
+    float overlap = ST_Collision::overlappingArea( projCol, playerCol );
+
+    if (!projectile->hasComponent<DamageAccumulator>())
+        projectile->addComponent<DamageAccumulator>();
+
+    auto& acc = projectile->getComponent<DamageAccumulator>();
+    acc.maxOverlap = std::max( acc.maxOverlap, overlap );
+    acc.targetPlayer = player;
+}
+
 inline void collisionHandler( const ST_BaseEvent& event )
 {
     const auto& collision = static_cast<const ST_CollisionEvent&>(event);
@@ -17,69 +53,31 @@ inline void collisionHandler( const ST_BaseEvent& event )
     Collider& colliderA = A->getComponent<Collider>();
     Collider& colliderB = B->getComponent<Collider>();
 
-    if (colliderA.tag != "tile" && colliderB.tag == "tile") {
-        Transform& transform = collision.entityA->getComponent<Transform>();
-        Velocity& velocity = collision.entityA->getComponent<Velocity>();
+    const std::string& tagA = colliderA.tag;
+    const std::string& tagB = colliderB.tag;
 
-        transform.position = transform.oldPosition;
-
-        // Reset velocity so player doesn't overshoot platform due to large velocity
-        if (velocity.direction.y > 0) {
-            velocity.direction.y = 0;
-        }
+    // Collision between a tile with any other object
+    if (tagA != "tile" && tagB == "tile") {
+        resolveTileCollision( A, B );
     }
-    else if (colliderA.tag == "tile" && colliderB.tag != "tile") {
-        Transform& transform = collision.entityB->getComponent<Transform>();
-        Velocity& velocity = collision.entityB->getComponent<Velocity>();
-
-        transform.position = transform.oldPosition;
-
-        // Reset velocity so player doesn't overshoot platform due to large velocity
-        if (velocity.direction.y > 0) {
-            velocity.direction.y = 0;
-        }
+    else if (tagA == "tile" && tagB != "tile") {
+        resolveTileCollision( B, A );
     }
 
     // Collision between destructive projectile and tile
-    if (colliderA.tag == "destructiveProjectile" && colliderB.tag == "tile") {
-        A->addComponent<PendingDestroy>();
-        B->addComponent<PendingDestroy>();
+    if (tagA == "destructiveProjectile" && tagB == "tile") {
+        handleDestructiveProjectileTileCollision( A, B );
     }
-    else if (colliderA.tag == "tile" && colliderB.tag == "destructiveProjectile") {
-        A->addComponent<PendingDestroy>();
-        B->addComponent<PendingDestroy>();
+    else if (tagA == "tile" && tagB == "destructiveProjectile") {
+        handleDestructiveProjectileTileCollision( B, A );
     }
 
     // Collision between destructive projectile and player
-    if (colliderA.tag == "destructiveProjectile" && colliderB.tag == "player") {
-        if (A->getComponent<Projectile>().id == B->getComponent<PlayerTag>().id)
-            return; // ignore self-hit
-
-        // get the overlapping area
-        float overlappingArea = ST_Collision::overlappingArea( colliderA, colliderB );
-
-        if (!A->hasComponent<DamageAccumulator>())
-            A->addComponent<DamageAccumulator>();
-
-        // track max overlap
-        auto& acc = A->getComponent<DamageAccumulator>();
-        acc.maxOverlap = std::max( acc.maxOverlap, overlappingArea );
-        acc.targetPlayer = B;
+    if (tagA == "destructiveProjectile" && tagB == "player") {
+        handleDestructiveProjectilePlayerCollision( A, B );
     }
-    else if (colliderA.tag == "player" && colliderB.tag == "destructiveProjectile") {
-        if (A->getComponent<PlayerTag>().id == B->getComponent<Projectile>().id)
-            return; // ignore self-hit
-
-        // get the overlapping area
-        float overlappingArea = ST_Collision::overlappingArea( colliderA, colliderB );
-
-        if (!B->hasComponent<DamageAccumulator>())
-            B->addComponent<DamageAccumulator>();
-
-        // track max overlap
-        auto& acc = B->getComponent<DamageAccumulator>();
-        acc.maxOverlap = std::max( acc.maxOverlap, overlappingArea );
-        acc.targetPlayer = A;
+    else if (tagA == "player" && tagB == "destructiveProjectile") {
+        handleDestructiveProjectilePlayerCollision( B, A );
     }
 }
 
