@@ -52,15 +52,15 @@ void ST_Game::init()
     Camera& camera = gameplayScene.createCamera();
     camera.view = SDL_FRect{ 0.0f, 0.0f, static_cast<float>(m_Window->getWidth()), static_cast<float>(m_Window->getHeight()) };
     camera.worldWidth = m_Window->getWidth() * 2;
-    camera.worldHeight = m_Window->getHeight() + 128.0f;
+    camera.worldHeight = m_Window->getHeight();
 
     // Set up background layer
     ST_Layer& background = gameplayScene.createLayer();
 
     ST_Entity& spriteHolder = background.createEntity();
-    SDL_Texture* bgTexture = ST_TextureManager::load( assetPath + "starry-night-bg.jpg" );
-    SDL_FRect bgSrc{ 0, 0, 1600, 1200 };
-    SDL_FRect bgDst{ 0, 0, m_Window->getWidth(), m_Window->getHeight() };
+    SDL_Texture* bgTexture = ST_TextureManager::load( assetPath + "castle-bg.png" );
+    SDL_FRect bgSrc{ 0, 0, 3240, 2160 };
+    SDL_FRect bgDst{ 0, 0, m_Window->getWidth() * 2, m_Window->getHeight() * 2 };
     spriteHolder.addComponent<Sprite>( bgTexture, bgSrc, bgDst );
     spriteHolder.addComponent<Transform>( ST_Vector2D( 0.0f, 0.0f ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
 

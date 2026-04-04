@@ -21,8 +21,6 @@ public:
                 if (
                     x < camera.view.x
                     || x > camera.view.x + camera.view.w
-                    || y < camera.view.y
-                    || y > camera.view.y + camera.view.h
                     )
                 {
                     entity->destroy();
