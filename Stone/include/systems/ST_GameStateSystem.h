@@ -26,7 +26,7 @@ public:
                 auto& health = entity->getComponent<Health>();
                 auto& transform = entity->getComponent<Transform>();
 
-                bool deadByHealth = health.healthPoint <= 0;
+                bool deadByHealth = health.current <= 0;
                 float maxY = context.camera.view.y + context.camera.view.h;
                 bool outOfBounds = (transform.position.y > maxY);
 

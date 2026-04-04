@@ -84,7 +84,7 @@ public:
                     frameTransform.position.x = playerCenterX - 64.0f;  // frame is 128x128 -> offset by 64 to center on player
                     frameTransform.position.y = playerCenterY - 64.0f;
 
-                    frameSprite.flip = (facingDir < 0) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+                    frameSprite.flip = (facingDir < 0) ? true : false;
                 }
             }
         }

@@ -3,6 +3,7 @@
 #include "ST_Component.h"
 
 #include <SDL3/SDL.h>
+#include <cmath>
 
 class ST_Collision
 {
@@ -25,5 +26,27 @@ public:
     static bool AABB( const Collider& colliderA, const Collider& colliderB )
     {
         return AABB( colliderA.rect, colliderB.rect );
+    }
+
+    static float overlappingArea( const Collider& colliderA, const Collider& colliderB )
+    {
+        if (AABB( colliderA.rect, colliderB.rect )) {
+            SDL_FRect rectA = colliderA.rect;
+            SDL_FRect rectB = colliderB.rect;
+
+            // Compute overlap bounds
+            float left = std::max( rectA.x, rectB.x );
+            float right = std::min( rectA.x + rectA.w, rectB.x + rectB.w );
+            float top = std::max( rectA.y, rectB.y );
+            float bottom = std::min( rectA.y + rectA.h, rectB.y + rectB.h );
+
+            float width = right - left;
+            float height = bottom - top;
+
+            if (width > 0 && height > 0)
+                return width * height;
+        }
+
+        return 0.0f;
     }
 };

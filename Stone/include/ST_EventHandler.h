@@ -3,6 +3,7 @@
 #include "ST_BaseEvent.h"
 #include "ST_Component.h"
 #include "ST_Entity.h"
+#include "ST_MathHelper.h"
 
 #include <algorithm>
 
@@ -47,6 +48,38 @@ inline void collisionHandler( const ST_BaseEvent& event )
     else if (colliderA.tag == "tile" && colliderB.tag == "destructiveProjectile") {
         A->addComponent<PendingDestroy>();
         B->addComponent<PendingDestroy>();
+    }
+
+    // Collision between destructive projectile and player
+    if (colliderA.tag == "destructiveProjectile" && colliderB.tag == "player") {
+        if (A->getComponent<PlayerTag>().id == B->getComponent<PlayerTag>().id)
+            return; // ignore self-hit
+
+        // get the overlapping area
+        float overlappingArea = ST_Collision::overlappingArea( colliderA, colliderB );
+
+        if (!A->hasComponent<DamageAccumulator>())
+            A->addComponent<DamageAccumulator>();
+
+        // track max overlap
+        auto& acc = A->getComponent<DamageAccumulator>();
+        acc.maxOverlap = std::max( acc.maxOverlap, overlappingArea );
+        acc.targetPlayer = B;
+    }
+    else if (colliderA.tag == "player" && colliderB.tag == "destructiveProjectile") {
+        if (A->getComponent<PlayerTag>().id == B->getComponent<PlayerTag>().id)
+            return; // ignore self-hit
+
+        // get the overlapping area
+        float overlappingArea = ST_Collision::overlappingArea( colliderA, colliderB );
+
+        if (!B->hasComponent<DamageAccumulator>())
+            B->addComponent<DamageAccumulator>();
+
+        // track max overlap
+        auto& acc = B->getComponent<DamageAccumulator>();
+        acc.maxOverlap = std::max( acc.maxOverlap, overlappingArea );
+        acc.targetPlayer = A;
     }
 }
 
@@ -143,6 +176,7 @@ inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent
         projTransform.position.y = transform.position.y + 16.0f;
 
         projectileEntity.addComponent<Velocity>( ST_Vector2D( playerVelocity.facing, 0.0f ) );
+        projectileEntity.addComponent<PlayerTag>( entity->getComponent<PlayerTag>().id ); // To avoid self-destruction when spawning projectile from player's position
     }
 }
 

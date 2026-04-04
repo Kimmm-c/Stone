@@ -37,7 +37,7 @@ struct Sprite
 
     ST_Vector2D fixedDimension{};
 
-    SDL_FlipMode flip = SDL_FLIP_NONE;
+    bool flip = false;
 };
 
 struct Collider
@@ -88,7 +88,15 @@ struct AnglePointerUI
 
 struct Health
 {
-    int healthPoint{};
+    ST_Vector2D range{};
+
+    float current = range.y;
+};
+
+struct DamageAccumulator
+{
+    float maxOverlap = 0.0f;
+    ST_Entity* targetPlayer = nullptr;
 };
 
 enum class GameState
@@ -116,8 +124,14 @@ struct AngleFrameUITag
 {
     int id;
 };
+struct HealthUITag
+{
+    int id;
+};
 struct ActivePlayerTag {};
 struct PendingProjectileTag {};
 struct ProjectileTag {};
 struct DestructiveProjectileTag {};
 struct PendingDestroy {};
+struct PendingHealthUIUpdateTag {};
+struct DamageAppliedTag {};

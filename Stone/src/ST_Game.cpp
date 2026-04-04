@@ -11,6 +11,8 @@
 #include "ST_ProjectileDestructionSystem.h"
 #include "ST_PowerBarUISyncSystem.h"
 #include "ST_ShootingAngleUISyncSystem.h"
+#include "ST_HealthUISyncSystem.h"
+#include "ST_HealthDamageSystem.h"
 #include "ST_GameStateSystem.h"
 #include "ST_EventHandler.h"
 
@@ -68,8 +70,10 @@ void ST_Game::init()
         , { ST_TextureManager::load( assetPath + "ground.png" ), 1, 1 }
     );
 
+    // Create players
     int playerAid = 0;
     int playerBid = 1;
+    ST_Vector2D healthRange{ 0.0f, 5000.0f };
 
     // create player A
     ST_Entity& playerA = midground.createEntity();
@@ -89,7 +93,7 @@ void ST_Game::init()
 
     playerA.addComponent<PlayerTag>( playerAid );
     playerA.addComponent<Projectile>();
-    playerA.addComponent<Health>( 1000 );
+    playerA.addComponent<Health>( healthRange );
 
     // create player B
     ST_Entity& playerB = midground.createEntity();
@@ -107,7 +111,7 @@ void ST_Game::init()
 
     playerB.addComponent<PlayerTag>( playerBid );
     playerB.addComponent<Projectile>();
-    playerB.addComponent<Health>( 1000 );
+    playerB.addComponent<Health>( healthRange );
 
     // Set up foreground layer (for UI elements)
     ST_Layer& foreground = gameplayScene.createLayer();
@@ -127,6 +131,8 @@ void ST_Game::init()
     SDL_Texture* frameTexture = ST_TextureManager::load( assetPath + "angle-frame.PNG" );
     SDL_FRect frameDim{ 0, 0, frameTexDimension.x, frameTexDimension.y };
 
+    float distFromPlayer = 50.0f;
+
     // Player A's shooting angle UI
     float pointerAX = (playerAPos.x + 64.0f) / 2.0f;
     float pointerAY = (playerAPos.y + 64.0f) / 2.0f;
@@ -138,7 +144,7 @@ void ST_Game::init()
     anglePointertA.addComponent<Transform>( ST_Vector2D( pointerAX, pointerAY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     angleFrameA.addComponent<Transform>( ST_Vector2D( frameAX, frameAY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
 
-    anglePointertA.addComponent<AnglePointerUI>( playerAid, 50.0f );
+    anglePointertA.addComponent<AnglePointerUI>( playerAid, distFromPlayer );
     angleFrameA.addComponent<AngleFrameUITag>( playerAid );
 
     // Player B's shooting angle UI
@@ -152,7 +158,7 @@ void ST_Game::init()
     anglePointertB.addComponent<Transform>( ST_Vector2D( pointerBX, pointerBY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     angleFrameB.addComponent<Transform>( ST_Vector2D( frameBX, frameBY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
 
-    anglePointertB.addComponent<AnglePointerUI>( playerBid, 50.0f );
+    anglePointertB.addComponent<AnglePointerUI>( playerBid, distFromPlayer );
     angleFrameB.addComponent<AngleFrameUITag>( playerBid );
 
     // Create shooting power UI elements
@@ -165,7 +171,7 @@ void ST_Game::init()
     float barSrcHeight = 32.0f;
     float barWidthOffsetA = 5.0f;
     float barWidthOffsetB = m_Window->getWidth() - (barSrcWidth + 5.0f);
-    float barHeightOffset = 32.0f;
+    float barHeightOffset = 10.0f;
 
     SDL_Texture* gradientTexture = ST_TextureManager::load( assetPath + "power-bar-gradient.PNG" );
     SDL_FRect gradientTextureSrc{ 0, 0, 0, 0 };
@@ -194,8 +200,26 @@ void ST_Game::init()
     barGradientB.addComponent<PowerBarTag>( playerBid );
 
     // Create health bars
+    ST_Entity& healthBarA = midground.createEntity();
+    ST_Entity& healthBarB = midground.createEntity();
 
+    ST_Vector2D fixedHealthDim{ 416.0f, 16.0f };
+    float healthWidthOffsetA = 5.0f;
+    float healthWidthOffsetB = m_Window->getWidth() - (barSrcWidth + 5.0f);
+    float healthHeightOffset = 10.0f + (barHeightOffset + barSrcHeight);
 
+    SDL_Texture* healthTexture = ST_TextureManager::load( assetPath + "health.PNG" );
+    SDL_FRect healthDim{ 0, 0, fixedHealthDim.x, fixedHealthDim.y };
+
+    // Create playerA's health UI
+    healthBarA.addComponent<Sprite>( healthTexture, healthDim, healthDim, fixedHealthDim );
+    healthBarA.addComponent<Transform>( ST_Vector2D( healthWidthOffsetA, healthHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    healthBarA.addComponent<HealthUITag>( playerAid );
+
+    // Create playerB's health UI
+    healthBarB.addComponent<Sprite>( healthTexture, healthDim, healthDim, fixedHealthDim, true );
+    healthBarB.addComponent<Transform>( ST_Vector2D( healthWidthOffsetB, healthHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    healthBarB.addComponent<HealthUITag>( playerBid );
 
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
@@ -205,28 +229,32 @@ void ST_Game::init()
 
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
-    gameplayScene.addSystem<ST_PowerBarUISyncSystem>();
-    gameplayScene.addSystem<ST_ShootingAngleUISyncSystem>();
     gameplayScene.addSystem<ST_TurnManagementSystem>();
     gameplayScene.addSystem<ST_MovementSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
     gameplayScene.addSystem<ST_PhysicsSystem>();
+    gameplayScene.addSystem<ST_PowerBarUISyncSystem>();
+    gameplayScene.addSystem<ST_ShootingAngleUISyncSystem>();
     gameplayScene.addSystem<ST_ColliderSyncSystem>();
     gameplayScene.addSystem<ST_CollisionSystem>();
+    gameplayScene.addSystem<ST_HealthDamageSystem>();
     gameplayScene.addSystem<ST_ProjectileDestructionSystem>();
+    gameplayScene.addSystem<ST_HealthUISyncSystem>();
     gameplayScene.addSystem<ST_GameStateSystem>();
 
     gameplayScene.registerLayer<
         ST_KeyboardInputSystem
-        , ST_PowerBarUISyncSystem
-        , ST_ShootingAngleUISyncSystem
         , ST_TurnManagementSystem
         , ST_MovementSystem
         , ST_ProjectileSpawnSystem
         , ST_PhysicsSystem
+        , ST_PowerBarUISyncSystem
+        , ST_ShootingAngleUISyncSystem
         , ST_ColliderSyncSystem
         , ST_CollisionSystem
+        , ST_HealthDamageSystem
         , ST_ProjectileDestructionSystem
+        , ST_HealthUISyncSystem
         , ST_GameStateSystem
     >( midground );
 }
