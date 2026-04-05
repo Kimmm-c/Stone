@@ -30,6 +30,9 @@ inline void handleDestructiveProjectilePlayerCollision( ST_Entity* projectile, S
     if (projectile->getComponent<Projectile>().id == player->getComponent<PlayerTag>().id)
         return;
 
+    if (!player->hasComponent<PlayerActionFlags>())
+        SDL_Log( "No PlayerActionFlags!" );
+
     Collider& projCol = projectile->getComponent<Collider>();
     Collider& playerCol = player->getComponent<Collider>();
 
@@ -41,6 +44,8 @@ inline void handleDestructiveProjectilePlayerCollision( ST_Entity* projectile, S
     auto& acc = projectile->getComponent<DamageAccumulator>();
     acc.maxOverlap = std::max( acc.maxOverlap, overlap );
     acc.targetPlayer = player;
+
+    player->getComponent<PlayerActionFlags>().isHurt = true;
 }
 
 inline void collisionHandler( const ST_BaseEvent& event )
@@ -83,7 +88,8 @@ inline void collisionHandler( const ST_BaseEvent& event )
 
 inline void handleMovement( ST_Entity* entity, const SDL_Event& event )
 {
-    if (!entity->hasComponent<Velocity>()) return;
+    if (!entity->hasComponent<Velocity>())
+        return;
 
     auto& velocity = entity->getComponent<Velocity>();
     const auto key = event.key.key;
@@ -111,7 +117,8 @@ inline void handleMovement( ST_Entity* entity, const SDL_Event& event )
 
 inline void handleProjectileControl( ST_Entity* entity, const SDL_Event& event )
 {
-    if (!entity->hasComponent<Projectile>()) return;
+    if (!entity->hasComponent<Projectile>())
+        return;
 
     auto& projectile = entity->getComponent<Projectile>();
     const auto key = event.key.key;
@@ -149,7 +156,10 @@ inline void handleProjectileControl( ST_Entity* entity, const SDL_Event& event )
 
 inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent& playerEvent )
 {
-    if (!entity->hasComponent<Projectile>() || !entity->hasComponent<Transform>())
+    if (
+        !entity->hasComponent<Projectile>()
+        || !entity->hasComponent<Transform>()
+        )
         return;
 
     const auto& keyEvent = playerEvent.context.event;
@@ -174,8 +184,14 @@ inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent
         projTransform.position.y = transform.position.y + 16.0f;
 
         projectileEntity.addComponent<Velocity>( ST_Vector2D( playerVelocity.facing, 0.0f ) );
+
+        if (!entity->hasComponent<PlayerActionFlags>())
+            SDL_Log( "No PlayerActionFlags!" );
+
+        entity->getComponent<PlayerActionFlags>().isThrowing = true;
     }
 }
+
 
 /*
 * Player 1                              |Player 2

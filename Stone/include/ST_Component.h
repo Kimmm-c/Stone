@@ -118,6 +118,26 @@ struct ScreenSpaceUI
     ST_Vector2D screenPosition; // fixed UI position
 };
 
+enum class PlayerState
+{
+    Idle,
+    Walk,
+    Hurt,
+    Falling,
+    Throwing
+};
+
+struct PlayerActionFlags
+{
+    bool isThrowing = false;
+    bool isHurt = false;
+};
+
+struct PlayerStateComponent
+{
+    PlayerState state = PlayerState::Idle;
+};
+
 // ------------ TAGS ---------------- //
 struct PlayerTag
 {

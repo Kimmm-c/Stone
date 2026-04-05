@@ -38,6 +38,13 @@ public:
                     sprite.src = clip.frameIndices[animation.currentFrame];
                 }
 
+                // If the entity has velocity, check its facing direction and flip the sprite accordingly
+                if (entity->hasComponent<Velocity>()) {
+                    int facing = entity->getComponent<Velocity>().facing;
+                    sprite.flip = facing > 0 ? false : true;
+                }
+
+
                 RenderContext context{ sprite.texture, &sprite.src, &sprite.dest, sprite.flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE };
                 ST_TextureManager::draw( context );
             }

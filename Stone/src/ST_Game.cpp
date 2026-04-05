@@ -17,6 +17,7 @@
 #include "ST_CameraSystem.h"
 #include "ST_ScreenUISystem.h"
 #include "ST_AnimationSystem.h"
+#include "ST_PlayerAnimationSystem.h"
 #include "ST_EventHandler.h"
 #include "ST_AssetManager.h"
 
@@ -98,6 +99,8 @@ void ST_Game::init()
     playerA.addComponent<PlayerTag>( playerAid );
     playerA.addComponent<Projectile>( playerAid );
     playerA.addComponent<Health>( healthRange );
+    playerA.addComponent<PlayerActionFlags>();
+    playerA.addComponent<PlayerStateComponent>();
 
     const char* animationNameA = "bald";
     ST_AssetManager::loadAnimation( animationNameA, assetPath + "animations/bald-walk-animation.xml" );
@@ -122,6 +125,8 @@ void ST_Game::init()
     playerB.addComponent<PlayerTag>( playerBid );
     playerB.addComponent<Projectile>( playerBid );
     playerB.addComponent<Health>( healthRange );
+    playerB.addComponent<PlayerActionFlags>();
+    playerB.addComponent<PlayerStateComponent>();
 
     const char* animationNameB = "red-eye";
     ST_AssetManager::loadAnimation( animationNameB, assetPath + "animations/red-eye-animation.xml" );
@@ -265,7 +270,6 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
     gameplayScene.addSystem<ST_TurnManagementSystem>();
     gameplayScene.addSystem<ST_MovementSystem>();
-    gameplayScene.addSystem<ST_AnimationSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
     gameplayScene.addSystem<ST_PhysicsSystem>();
     gameplayScene.addSystem<ST_PowerBarUISyncSystem>();
@@ -274,6 +278,8 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_CollisionSystem>();
     gameplayScene.addSystem<ST_HealthDamageSystem>();
     gameplayScene.addSystem<ST_ProjectileDestructionSystem>();
+    gameplayScene.addSystem<ST_PlayerAnimationSystem>();
+    gameplayScene.addSystem<ST_AnimationSystem>();
     gameplayScene.addSystem<ST_HealthUISyncSystem>();
     gameplayScene.addSystem<ST_CameraSystem>();
     gameplayScene.addSystem<ST_ScreenUISystem>();
@@ -283,7 +289,6 @@ void ST_Game::init()
         ST_KeyboardInputSystem
         , ST_TurnManagementSystem
         , ST_MovementSystem
-        , ST_AnimationSystem
         , ST_ProjectileSpawnSystem
         , ST_PhysicsSystem
         , ST_PowerBarUISyncSystem
@@ -292,6 +297,8 @@ void ST_Game::init()
         , ST_CollisionSystem
         , ST_HealthDamageSystem
         , ST_ProjectileDestructionSystem
+        , ST_PlayerAnimationSystem
+        , ST_AnimationSystem
         , ST_HealthUISyncSystem
         , ST_CameraSystem
         , ST_ScreenUISystem

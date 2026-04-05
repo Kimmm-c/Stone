@@ -14,36 +14,8 @@ public:
         auto& entities = layer.getEntities();
 
         for (const auto& entity : entities) {
-            if (entity->hasComponent<Animation>() && entity->hasComponent<Velocity>()) {
+            if (entity->hasComponent<Animation>()) {
                 auto& animation = entity->getComponent<Animation>();
-                auto& velocity = entity->getComponent<Velocity>();
-
-                // State system: Deciding which clip to use
-                std::string newClip;
-
-                if (velocity.direction.x > 0.0f) {
-                    newClip = "walk";
-                }
-                else if (velocity.direction.x < 0.0f) {
-                    newClip = "walk";
-                }
-                else if (velocity.direction.y > 0.0f) {
-                    newClip = "falldown";
-                }
-                //else if (velocity.direction.y < 0.0f) {
-                //    newClip = "walk_up";
-                //}
-                else {
-                    newClip = "idle";
-                }
-
-                // Check if the animation has switched
-                // if the chosen clip is different from the new clip, reset time and frame index
-                if (animation.currentClip != newClip) {
-                    animation.currentClip = newClip;
-                    animation.currentFrame = 0; // reset to the first frame of the new clip
-                    animation.time = 0.0f;      // reset the time accumulator
-                };
 
                 // Playback system: advance frame if accumulated time exceeds frame speed
                 float animationFrameSpeed = animation.speed;
