@@ -63,6 +63,9 @@ void ST_Game::init()
     ST_AudioManager::init();
     ST_AudioManager::loadAudio( "whoosh", assetPath + "audios/sfx/whoosh.mp3" );
     ST_AudioManager::loadAudio( "collision", assetPath + "audios/sfx/collision.mp3" );
+    ST_AudioManager::loadAudio( "horrorBg", assetPath + "audios/music/bg-horror-theme-music.mp3" );
+    // TODO: Tailor bg music to scene?
+    ST_AudioManager::playMusic( "horrorBg" );
 
     // Set up background layer
     ST_Layer& background = gameplayScene.createLayer();
@@ -82,10 +85,14 @@ void ST_Game::init()
         , { ST_TextureManager::load( assetPath + "ground.png" ), 1, 1 }
     );
 
+    // Create gamestate entity
+    ST_Entity& gamestate = midground.createEntity();
+    gamestate.addComponent<GameStateComponent>();
+
     // Create players
     int playerAid = 0;
     int playerBid = 1;
-    ST_Vector2D healthRange{ 0.0f, 5000.0f };
+    ST_Vector2D healthRange{ 0.0f, 1000.0f };
 
     // create player A
     ST_Entity& playerA = midground.createEntity();

@@ -1,7 +1,7 @@
 #include "ST_AudioManager.h"
 
 MIX_Mixer* ST_AudioManager::m_Mixer = nullptr;
-MIX_Track* ST_AudioManager::m_MusicTrack = nullptr;
+MIX_Track* ST_AudioManager::m_MusicTrack;
 MIX_Track* ST_AudioManager::m_SfxTrack;
 std::unordered_map<std::string, MIX_Audio*> ST_AudioManager::m_Audio;
 
@@ -20,12 +20,12 @@ void ST_AudioManager::init()
 
     m_MusicTrack = MIX_CreateTrack( m_Mixer );
     m_SfxTrack = MIX_CreateTrack( m_Mixer );
-    MIX_SetTrackGain( m_MusicTrack, 0.0f );
+    MIX_SetTrackGain( m_MusicTrack, 1.0f );
 }
 
 void ST_AudioManager::loadAudio( const std::string& name, const char* path )
 {
-    if (m_Audio.contains( path )) {
+    if (m_Audio.contains( name )) {
         return;
     }
 
@@ -45,6 +45,11 @@ void ST_AudioManager::loadAudio( const std::string& name, const std::string& pat
 
 void ST_AudioManager::playMusic( const std::string& name )
 {
+    if (!m_Audio.contains( name )) {
+        SDL_Log("Music not found!");
+        return;
+    }
+
     if (MIX_SetTrackAudio( m_MusicTrack, m_Audio[name] ) == 0) {
         SDL_Log( "MIX_SetTrackAudio() failed" );
         return;

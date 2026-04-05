@@ -9,13 +9,37 @@
 
 inline void resolveTileCollision( ST_Entity* dynamic, ST_Entity* tile )
 {
-    Transform& transform = dynamic->getComponent<Transform>();
-    Velocity& velocity = dynamic->getComponent<Velocity>();
+    if (
+        !dynamic->hasComponent<Transform>()
+        || !dynamic->hasComponent<Velocity>()
+        || !dynamic->hasComponent<Sprite>()
+        )
+    {
+        SDL_Log( "Object missing required component to resolve collision!" );
+        return;
+    }
 
-    transform.position = transform.oldPosition;
+    if (
+        !tile->hasComponent<Transform>()
+        || !tile->hasComponent<Sprite>()
+        )
+    {
+        SDL_Log( "Tile missing required component to resolve collision!" );
+        return;
+    }
 
-    if (velocity.direction.y > 0)
-        velocity.direction.y = 0;
+    Transform& objTransform = dynamic->getComponent<Transform>();
+    Velocity& objVelocity = dynamic->getComponent<Velocity>();
+    Sprite& objSprite = dynamic->getComponent<Sprite>();
+
+    Transform& tileTransform = tile->getComponent<Transform>();
+    Sprite& tileSprite = tile->getComponent<Sprite>();
+
+    // TODO: Update this handler to resolve horizontal collision
+    objTransform.position = objTransform.oldPosition;
+
+    if (objVelocity.direction.y > 0)
+        objVelocity.direction.y = 0;
 }
 
 inline void handleDestructiveProjectileTileCollision( ST_Entity* A, ST_Entity* B )
