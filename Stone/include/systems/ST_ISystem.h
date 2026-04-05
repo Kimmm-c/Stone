@@ -38,16 +38,22 @@ protected:
             if (entity->hasComponent<Collider>() && entity->hasComponent<Transform>()) {
                 Collider collider = entity->getComponent<Collider>();
 
-                SDL_Texture* colliderTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet2.png" );
+                if (!m_DebugTexture) {
+                    m_DebugTexture = ST_TextureManager::load( std::string( ASSET_PATH ) + "spritesheet.png" );
+                }
+
                 SDL_FRect colliderSrc{ 0, 32, 32, 32 };
                 SDL_FRect colliderDest{ collider.rect.x, collider.rect.y, collider.rect.w, collider.rect.h };
 
                 // Reduce the opacity of the debug overlay
-                SDL_SetTextureAlphaMod( colliderTexture, 100 );
-                SDL_SetTextureBlendMode( colliderTexture, SDL_BLENDMODE_BLEND );
+                SDL_SetTextureAlphaMod( m_DebugTexture, 100 );
+                SDL_SetTextureBlendMode( m_DebugTexture, SDL_BLENDMODE_BLEND );
 
-                ST_TextureManager::draw( { colliderTexture, &colliderSrc, &colliderDest } );
+                ST_TextureManager::draw( { m_DebugTexture, &colliderSrc, &colliderDest } );
             }
         }
     }
+
+private:
+    SDL_Texture* m_DebugTexture = nullptr;
 };
