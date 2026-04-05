@@ -29,6 +29,8 @@ public:
                 if (!entityB->isActive())
                     continue;
 
+
+
                 Collider& colliderB = entityB->getComponent<Collider>();
 
                 if (ST_Collision::AABB( colliderA, colliderB ))
@@ -45,6 +47,13 @@ public:
 
         for (const auto& entity : entities)
         {
+            // filter out UI elements
+            if (entity->hasComponent<Sprite>()) {
+                Sprite& sprite = entity->getComponent<Sprite>();
+                if (sprite.renderLayer == RenderLayer::UI)
+                    continue;
+            }
+
             if (entity->hasComponent<Collider>()
                  && entity->hasComponent<Transform>()
                  && entity->isActive())

@@ -57,9 +57,11 @@ struct ST_PlayerActionEvent : public ST_BaseEvent
 struct ST_GameOverEvent : public ST_BaseEvent
 {
     ST_Entity* winner;
+    ST_Entity* overlay;
 
-    ST_GameOverEvent( ST_Entity* winnerEntity )
+    ST_GameOverEvent( ST_Entity* winnerEntity, ST_Entity* overlay )
         : winner( winnerEntity )
+        , overlay( overlay )
     {
         type = EventType::GameOver;
     }

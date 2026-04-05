@@ -22,6 +22,7 @@ private:
     void processInput();
     void update( float delta );
     void render();
+    void restart();
 
     inline bool isRunning() const { return m_IsRunning; }
 

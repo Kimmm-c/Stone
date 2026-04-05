@@ -33,8 +33,9 @@ public:
                 if (deadByHealth || outOfBounds) {
                     gameState->state = GameState::GameOver;
                     gameState->winner = findOtherPlayer( layer, entity.get() );
-                    
-                    context.eventManager.emit<ST_GameOverEvent>( ST_GameOverEvent( gameState->winner ) );
+                    gameState->overlay = findGameEndOverlay( layer );
+
+                    context.eventManager.emit<ST_GameOverEvent>( ST_GameOverEvent( gameState->winner, gameState->overlay ) );
 
                     SDL_Log( "Game has ended!" );
                     return;
@@ -63,6 +64,18 @@ private:
         for (auto& entity : entities) {
             if (entity->hasComponent<PlayerTag>() && entity.get() != deadPlayer)
                 return entity.get();
+        }
+
+        return nullptr;
+    }
+
+    ST_Entity* findGameEndOverlay( ST_Layer& layer )
+    {
+        auto& entities = layer.getEntities();
+
+        for (auto& entity : entities) {
+            if (entity->hasComponent<WinnerTag>())
+                return entity->getComponent<Parent>().parent;
         }
 
         return nullptr;

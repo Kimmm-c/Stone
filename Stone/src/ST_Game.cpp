@@ -342,7 +342,9 @@ void ST_Game::init()
     );
     overlay.addComponent<Transform>( ST_Vector2D( overlayDest.x, overlayDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
 
-    overlay.addComponent<Children>();
+    auto& overlayChildren = overlay.addComponent<Children>();
+
+
     // create overlay panel buttons
     ST_Entity& exit = midground.createEntity();
     ST_Entity& rematch = midground.createEntity();
@@ -369,7 +371,28 @@ void ST_Game::init()
         RenderLayer::UI,
         false // not visible during gameplay
     );
-    exit.addComponent<Transform>( ST_Vector2D( exitDest.x, exitDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    Transform& exitTransform = exit.addComponent<Transform>( ST_Vector2D( exitDest.x, exitDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    exit.addComponent<Parent>( &overlay );
+    exit.addComponent<Collider>( "ui", exitDest );
+    Clickable& exitButton = exit.addComponent<Clickable>();
+    // shrink slightly when pressed
+    exitButton.onPressed = [&exitTransform]() {
+        exitTransform.scale = 0.75;
+        };
+
+    // restore button's size when mouse leaves
+    exitButton.onCancel = [&exitTransform]() {
+        exitTransform.scale = 1.0f;
+        };
+
+    // restore button's size + exit game
+    exitButton.onReleased = [this, &exitTransform]() {
+        exitTransform.scale = 1.0f;
+
+        this->m_IsRunning = false;  // stops main loop
+        };
+    overlayChildren.children.push_back( &exit );
+
 
     // Set up rematch button
     SDL_Texture* rematchTexture = ST_TextureManager::load( assetPath + "blue-button.PNG" );
@@ -388,7 +411,32 @@ void ST_Game::init()
         RenderLayer::UI,
         false // not visible during gameplay
     );
-    rematch.addComponent<Transform>( ST_Vector2D( rematchDest.x, rematchDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    Transform rematchTransform = rematch.addComponent<Transform>( ST_Vector2D( rematchDest.x, rematchDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    rematch.addComponent<Parent>( &overlay );
+    rematch.addComponent<Collider>( "ui", rematchDest );
+    Clickable& rematchButton = rematch.addComponent<Clickable>();
+
+    rematchButton.onPressed = [&rematchTransform]() {
+        rematchTransform.scale = 0.75f;
+        };
+
+    rematchButton.onCancel = [&rematchTransform]() {
+        rematchTransform.scale = 1.0f;
+        };
+
+    rematchButton.onReleased = [this, &rematchTransform]() {
+        rematchTransform.scale = 1.0f;
+
+        // Restart game
+        this->restart();
+        };
+    overlayChildren.children.push_back( &rematch );
+
+    // Create place holder to display the winner
+    ST_Entity& winnerPlaceholder = midground.createEntity();
+    winnerPlaceholder.addComponent<Parent>( &overlay );
+    winnerPlaceholder.addComponent<WinnerTag>();
+    overlayChildren.children.push_back( &winnerPlaceholder );
 }
 
 void ST_Game::run()
@@ -425,4 +473,9 @@ void ST_Game::render()
     SDL_RenderClear( ST_TextureManager::getRenderer()->getNativeRenderer() );
     ST_SceneManager::render();
     SDL_RenderPresent( ST_TextureManager::getRenderer()->getNativeRenderer() );
+}
+
+void ST_Game::restart()
+{
+    // TODO: restart the game
 }

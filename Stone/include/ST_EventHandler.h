@@ -271,22 +271,43 @@ inline void gameOverHandler( const ST_BaseEvent& event )
 {
     const auto& gameOverEvent = static_cast<const ST_GameOverEvent&>(event);
 
-    // Create end scene
-    ST_Scene& gameEndScene = ST_SceneManager::loadScene( "gameend" );
+    // add Sprite and Transform to winner placeholder
+    ST_Entity* winnerPlaceholder = nullptr;
+    ST_Entity* overlay = gameOverEvent.overlay;
+    auto& children = overlay->getComponent<Children>().children;
 
-    // Get camera from current scene and set up new camera for the new scene
-    Camera& curCamera = ST_SceneManager::getCurrentScene().getCamera();
+    for (auto& child : children) {
+        if (child->hasComponent<WinnerTag>())
+            winnerPlaceholder = child;
+    }
 
-    Camera& newCam = gameEndScene.createCamera();
-    newCam.view = curCamera.view;
-    newCam.worldWidth = curCamera.view.w;
-    newCam.worldHeight = curCamera.view.h;
+    if (!winnerPlaceholder) {
+        SDL_Log( "Couldn't detect winner placeholder!" );
+        return;
+    }
 
-    ST_Layer& gameEndLayer = gameEndScene.createLayer();
+    Sprite& overlaySprite = overlay->getComponent<Sprite>();
+    Sprite winnerSprite = gameOverEvent.winner->getComponent<Sprite>();
+    winnerSprite.dest = ST_RenderHelper::getCenterDest( winnerSprite.dest, overlaySprite.dest );
+    winnerSprite.dest = ST_RenderHelper::getScaledDest( winnerSprite.dest, 2.0f );
+    float offsetY = 100.0f;
+    winnerSprite.dest.y -= offsetY; // move it slightly upward
+    winnerSprite.renderLayer = RenderLayer::UI;
 
-    // Add UI text
+    winnerPlaceholder->addComponent<Sprite>( winnerSprite );
+    winnerPlaceholder->addComponent<Transform>(
+        ST_Vector2D( winnerSprite.dest.x, winnerSprite.dest.y )
+        , ST_Vector2D( 0.0f, 0.0f )
+        , 0.0f
+        , 1.0f
+    );
 
-    // Add Winner
+    // make the overlay and its children visible
+    overlaySprite.isVisible = true;
+    for (auto& child : children) {
+        if (child->hasComponent<Sprite>())
+            child->getComponent<Sprite>().isVisible = true;
+    }
 }
 
 inline void mouseInteractionHandler( const ST_BaseEvent& event )

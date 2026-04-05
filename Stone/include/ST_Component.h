@@ -142,6 +142,7 @@ struct GameStateComponent
 {
     GameState state = GameState::Playing;
     ST_Entity* winner = nullptr;
+    ST_Entity* overlay = nullptr;
 };
 
 struct ScreenSpaceUI
@@ -193,3 +194,4 @@ struct DestructiveProjectileTag {};
 struct PendingDestroy {};
 struct PendingHealthUIUpdateTag {};
 struct DamageAppliedTag {};
+struct WinnerTag {};
