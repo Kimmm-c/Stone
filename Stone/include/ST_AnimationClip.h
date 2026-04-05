@@ -6,4 +6,5 @@
 struct ST_AnimationClip
 {
     std::vector<SDL_FRect> frameIndices;
+    bool loop = true;
 };

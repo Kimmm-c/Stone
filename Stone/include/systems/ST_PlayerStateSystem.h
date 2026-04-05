@@ -16,13 +16,26 @@ public:
 
         for (auto& entity : entities)
         {
-            if (!entity->hasComponent<PlayerStateComponent>() || !entity->hasComponent<Velocity>())
+            if (
+                !entity->hasComponent<PlayerStateComponent>()
+                || !entity->hasComponent<Velocity>()
+                || !entity->hasComponent<Animation>()
+                || !entity->hasComponent<PlayerActionFlags>()
+                )
                 continue;
 
             auto& state = entity->getComponent<PlayerStateComponent>();
             auto& velocity = entity->getComponent<Velocity>();
-
+            auto& animation = entity->getComponent<Animation>();
             auto& flags = entity->getComponent<PlayerActionFlags>();
+
+            // Blocking states for one-time (non-looping) actions
+            if (state.state == PlayerState::Throwing || state.state == PlayerState::Hurt)
+            {
+                if (!animation.isFinished)
+                    continue;
+            }
+
 
             if (flags.isHurt)
             {

@@ -18,6 +18,7 @@
 #include "ST_ScreenUISystem.h"
 #include "ST_AnimationSystem.h"
 #include "ST_PlayerAnimationSystem.h"
+#include "ST_PlayerStateSystem.h"
 #include "ST_EventHandler.h"
 #include "ST_AssetManager.h"
 
@@ -278,6 +279,7 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_CollisionSystem>();
     gameplayScene.addSystem<ST_HealthDamageSystem>();
     gameplayScene.addSystem<ST_ProjectileDestructionSystem>();
+    gameplayScene.addSystem<ST_PlayerStateSystem>();
     gameplayScene.addSystem<ST_PlayerAnimationSystem>();
     gameplayScene.addSystem<ST_AnimationSystem>();
     gameplayScene.addSystem<ST_HealthUISyncSystem>();
@@ -297,6 +299,7 @@ void ST_Game::init()
         , ST_CollisionSystem
         , ST_HealthDamageSystem
         , ST_ProjectileDestructionSystem
+        , ST_PlayerStateSystem
         , ST_PlayerAnimationSystem
         , ST_AnimationSystem
         , ST_HealthUISyncSystem

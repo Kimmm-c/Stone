@@ -34,6 +34,7 @@ Animation ST_AssetManager::loadAnimationFromXML( const char* path )
     for (tinyxml2::XMLElement* clip = root->FirstChildElement(); clip != nullptr; clip = clip->NextSiblingElement()) {
         std::string clipName = clip->Name();
         ST_AnimationClip animationClip;
+        animationClip.loop = clip->IntAttribute( "loop", 1 ) == 1;
 
         for (tinyxml2::XMLElement* frame = clip->FirstChildElement(); frame != nullptr; frame = frame->NextSiblingElement()) {
             SDL_FRect rect;

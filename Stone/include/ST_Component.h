@@ -54,6 +54,8 @@ struct Animation
     float time{};       // time is accumulated for the current frame
     int currentFrame{}; // index of the current frame in the current clip
     float speed = 0.1f;
+
+    bool isFinished = false;
 };
 
 struct Camera

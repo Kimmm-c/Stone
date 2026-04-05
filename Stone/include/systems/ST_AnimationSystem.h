@@ -21,12 +21,24 @@ public:
                 float animationFrameSpeed = animation.speed;
                 ST_AnimationClip clip = animation.clips[animation.currentClip];
                 animation.time += context.delta;
+                animation.isFinished = false;
 
                 if (animation.time >= animationFrameSpeed) {
                     animation.time -= animationFrameSpeed;
 
                     std::size_t totalAnimationFrames = clip.frameIndices.size();
-                    animation.currentFrame = (animation.currentFrame + 1) % totalAnimationFrames; // advance to the next frame, loop back to the start if we reach the end
+                    //animation.currentFrame = (animation.currentFrame + 1) % totalAnimationFrames; // advance to the next frame, loop back to the start if we reach the end
+
+                    // loop back to beginning frame if animation is looping, otherwise, mark as finished
+                    if (animation.currentFrame == totalAnimationFrames - 1)
+                    {
+                        if (clip.loop)
+                            animation.currentFrame = 0;
+                        else
+                            animation.isFinished = true;
+                    }
+                    else
+                        animation.currentFrame++;
                 }
             }
         }
