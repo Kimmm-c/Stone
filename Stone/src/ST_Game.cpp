@@ -19,6 +19,7 @@
 #include "ST_AnimationSystem.h"
 #include "ST_PlayerAnimationSystem.h"
 #include "ST_PlayerStateSystem.h"
+#include "ST_AudioSystem.h"
 #include "ST_EventHandler.h"
 #include "ST_AssetManager.h"
 
@@ -59,9 +60,9 @@ void ST_Game::init()
     camera.worldHeight = m_Window->getHeight();
 
     // Set up sound effects
-    m_AudioManager->loadAudio( "whoosh", assetPath + "audios/sfx/whoosh.mp3" );
-    m_AudioManager->loadAudio( "collision", assetPath + "audios/sfx/collision.mp3" );
-    m_AudioManager->playSfx( "collision" );
+    ST_AudioManager::init();
+    ST_AudioManager::loadAudio( "whoosh", assetPath + "audios/sfx/whoosh.mp3" );
+    ST_AudioManager::loadAudio( "collision", assetPath + "audios/sfx/collision.mp3" );
 
     // Set up background layer
     ST_Layer& background = gameplayScene.createLayer();
@@ -265,8 +266,6 @@ void ST_Game::init()
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
     gameplayScene.registerEventHandler<ST_CollisionEvent>( collisionHandler );
 
-    SDL_Log( "do something" );
-
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
     gameplayScene.addSystem<ST_TurnManagementSystem>();
@@ -285,6 +284,7 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_HealthUISyncSystem>();
     gameplayScene.addSystem<ST_CameraSystem>();
     gameplayScene.addSystem<ST_ScreenUISystem>();
+    gameplayScene.addSystem<ST_AudioSystem>();
     gameplayScene.addSystem<ST_GameStateSystem>();
 
     gameplayScene.registerLayer<
@@ -305,6 +305,7 @@ void ST_Game::init()
         , ST_HealthUISyncSystem
         , ST_CameraSystem
         , ST_ScreenUISystem
+        , ST_AudioSystem
         , ST_GameStateSystem
     >( midground );
 }

@@ -1,10 +1,11 @@
 #include "ST_AudioManager.h"
 
-
+MIX_Mixer* ST_AudioManager::m_Mixer = nullptr;
+MIX_Track* ST_AudioManager::m_MusicTrack = nullptr;
 MIX_Track* ST_AudioManager::m_SfxTrack;
 std::unordered_map<std::string, MIX_Audio*> ST_AudioManager::m_Audio;
 
-ST_AudioManager::ST_AudioManager()
+void ST_AudioManager::init()
 {
     if (MIX_Init() == 0) {
         SDL_Log( "MIX_Init failed" );
@@ -22,7 +23,7 @@ ST_AudioManager::ST_AudioManager()
     MIX_SetTrackGain( m_MusicTrack, 0.0f );
 }
 
-void ST_AudioManager::loadAudio( const std::string& name, const char* path ) const
+void ST_AudioManager::loadAudio( const std::string& name, const char* path )
 {
     if (m_Audio.contains( path )) {
         return;
@@ -37,12 +38,12 @@ void ST_AudioManager::loadAudio( const std::string& name, const char* path ) con
     m_Audio.emplace( name, audioPtr );
 }
 
-void ST_AudioManager::loadAudio( const std::string& name, const std::string& path ) const
+void ST_AudioManager::loadAudio( const std::string& name, const std::string& path )
 {
     loadAudio( name, path.c_str() );
 }
 
-void ST_AudioManager::playMusic( const std::string& name ) const
+void ST_AudioManager::playMusic( const std::string& name )
 {
     if (MIX_SetTrackAudio( m_MusicTrack, m_Audio[name] ) == 0) {
         SDL_Log( "MIX_SetTrackAudio() failed" );
@@ -51,7 +52,7 @@ void ST_AudioManager::playMusic( const std::string& name ) const
 
     MIX_PlayTrack( m_MusicTrack, -1 ); // -1: loop endlessly
 }
-void ST_AudioManager::stopMusic() const
+void ST_AudioManager::stopMusic()
 {
     MIX_StopTrack( m_MusicTrack, 0 );
 }

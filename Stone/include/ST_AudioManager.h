@@ -7,19 +7,18 @@
 class ST_AudioManager
 {
 public:
-    ST_AudioManager();
+    static void init();
+    static void loadAudio( const std::string& name, const char* path );
+    static void loadAudio( const std::string& name, const std::string& path );
 
-    void loadAudio( const std::string& name, const char* path ) const;
-    void loadAudio( const std::string& name, const std::string& path ) const;
-
-    void playMusic( const std::string& name ) const;
-    void stopMusic() const;
+    static void playMusic( const std::string& name );
+    static void stopMusic();
 
     static void playSfx( const std::string& name );
 
 private:
-    MIX_Mixer* m_Mixer = nullptr;
-    MIX_Track* m_MusicTrack = nullptr;
+    static MIX_Mixer* m_Mixer;
+    static MIX_Track* m_MusicTrack;
 
     static MIX_Track* m_SfxTrack;
     static std::unordered_map<std::string, MIX_Audio*> m_Audio;

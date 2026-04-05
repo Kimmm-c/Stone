@@ -22,6 +22,8 @@ inline void handleDestructiveProjectileTileCollision( ST_Entity* A, ST_Entity* B
 {
     A->addComponent<PendingDestroy>();
     B->addComponent<PendingDestroy>();
+
+    ST_AudioEventQueue::push( { ST_AudioEvent::Type::PlaySfx , "collision" } );
 }
 
 inline void handleDestructiveProjectilePlayerCollision( ST_Entity* projectile, ST_Entity* player )
@@ -189,6 +191,7 @@ inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent
             SDL_Log( "No PlayerActionFlags!" );
 
         entity->getComponent<PlayerActionFlags>().isThrowing = true;
+        ST_AudioEventQueue::push( { ST_AudioEvent::Type::PlaySfx , "whoosh" } );
     }
 }
 

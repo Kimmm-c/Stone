@@ -29,7 +29,6 @@ private:
     bool m_IsRunning = false;
 
     std::unique_ptr<ST_SceneManager> m_SceneManager = std::make_unique<ST_SceneManager>();
-    std::unique_ptr<ST_AudioManager> m_AudioManager = std::make_unique<ST_AudioManager>();
 
     std::unique_ptr<ST_Window> m_Window = nullptr;
     std::unique_ptr<ST_Time> m_Time = nullptr;
