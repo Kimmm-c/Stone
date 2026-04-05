@@ -18,6 +18,8 @@ void ST_Layer::render( Camera* camera )
         m_MapRenderingSystem->render( m_Entities, camera, false );
         m_RenderingSystem->render( m_Entities, camera, false );
     }
+
+    m_UIRenderingSystem->render( m_Entities, camera, false ); // UI elements are rendered regardless
 }
 
 void ST_Layer::cleanup()

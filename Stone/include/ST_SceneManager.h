@@ -10,10 +10,7 @@
 class ST_SceneManager
 {
 public:
-    ST_SceneManager() = default;
-    ~ST_SceneManager() = default;
-
-    ST_Scene& loadScene( const std::string& sceneName, bool isCurrentScene = false )
+    static ST_Scene& loadScene( const std::string& sceneName, bool isCurrentScene = false )
     {
         auto [it, inserted] = m_Scenes.emplace( sceneName, std::make_unique<ST_Scene>() );
 
@@ -22,17 +19,34 @@ public:
         return *it->second;
     }
 
-    void update( float delta, SDL_Event& event )
+    static void update( float delta, SDL_Event& event )
     {
         if (m_CurrentScene) m_CurrentScene->update( delta, event );
     }
 
-    void render()
+    static void render()
     {
         if (m_CurrentScene) m_CurrentScene->render();
     }
 
+    static void changeScene( const std::string& sceneName )
+    {
+        auto it = m_Scenes.find( sceneName );
+
+        if (it != m_Scenes.end()) {
+            m_CurrentScene = it->second.get();
+        }
+        else {
+            SDL_Log( "Can't find scene!" );
+        }
+    }
+
+    static ST_Scene& getCurrentScene()
+    {
+        return *m_CurrentScene;
+    }
+
 private:
-    ST_Scene* m_CurrentScene = nullptr;
-    std::unordered_map<std::string, std::unique_ptr<ST_Scene>> m_Scenes;
+    static ST_Scene* m_CurrentScene;
+    static std::unordered_map<std::string, std::unique_ptr<ST_Scene>> m_Scenes;
 };

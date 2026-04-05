@@ -49,4 +49,19 @@ public:
 
         return 0.0f;
     }
+
+    static bool pointIsInside( const ST_Vector2D& point, const Collider& collider )
+    {
+        float leftBound = collider.rect.x;
+        float rightBound = collider.rect.x + collider.rect.w;
+        float topBound = collider.rect.y;
+        float botBound = collider.rect.y + collider.rect.h;
+
+        return (
+            point.x >= leftBound
+            && point.x <= rightBound
+            && point.y >= topBound
+            && point.y <= botBound
+            );
+    }
 };

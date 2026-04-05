@@ -32,8 +32,9 @@ public:
 
                 if (deadByHealth || outOfBounds) {
                     gameState->state = GameState::GameOver;
-
                     gameState->winner = findOtherPlayer( layer, entity.get() );
+                    
+                    context.eventManager.emit<ST_GameOverEvent>( ST_GameOverEvent( gameState->winner ) );
 
                     SDL_Log( "Game has ended!" );
                     return;

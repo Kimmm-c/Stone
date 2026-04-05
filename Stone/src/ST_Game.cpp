@@ -20,6 +20,7 @@
 #include "ST_PlayerAnimationSystem.h"
 #include "ST_PlayerStateSystem.h"
 #include "ST_AudioSystem.h"
+#include "ST_MouseInputSystem.h"
 #include "ST_EventHandler.h"
 #include "ST_AssetManager.h"
 
@@ -50,8 +51,8 @@ ST_Game::ST_Game( const char* title, int windowWidth, int windowHeight, bool ful
 
 void ST_Game::init()
 {
-    // create a scene
-    ST_Scene& gameplayScene = m_SceneManager->loadScene( "gameplay", true );
+    // create a gameplay scene
+    ST_Scene& gameplayScene = ST_SceneManager::loadScene( "gameplay", true );
 
     // Set up camera
     Camera& camera = gameplayScene.createCamera();
@@ -123,7 +124,7 @@ void ST_Game::init()
 
     // create player B
     ST_Entity& playerB = midground.createEntity();
-    ST_Vector2D playerBPos{ 300.0f, 10.0f };
+    ST_Vector2D playerBPos{ 1600.0f, 10.0f };
     playerB.addComponent<Transform>( playerBPos, ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
     playerB.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
@@ -272,9 +273,12 @@ void ST_Game::init()
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
     gameplayScene.registerEventHandler<ST_CollisionEvent>( collisionHandler );
+    gameplayScene.registerEventHandler<ST_GameOverEvent>( gameOverHandler );
+    gameplayScene.registerEventHandler<ST_MouseInteractionEvent>( mouseInteractionHandler );
 
     // Set up systems
     gameplayScene.addSystem<ST_KeyboardInputSystem>();
+    gameplayScene.addSystem<ST_MouseInputSystem>();
     gameplayScene.addSystem<ST_TurnManagementSystem>();
     gameplayScene.addSystem<ST_MovementSystem>();
     gameplayScene.addSystem<ST_ProjectileSpawnSystem>();
@@ -294,8 +298,9 @@ void ST_Game::init()
     gameplayScene.addSystem<ST_AudioSystem>();
     gameplayScene.addSystem<ST_GameStateSystem>();
 
-    gameplayScene.registerLayer<
+    gameplayScene.registerLayer <
         ST_KeyboardInputSystem
+        , ST_MouseInputSystem
         , ST_TurnManagementSystem
         , ST_MovementSystem
         , ST_ProjectileSpawnSystem
@@ -314,7 +319,76 @@ void ST_Game::init()
         , ST_ScreenUISystem
         , ST_AudioSystem
         , ST_GameStateSystem
-    >( midground );
+    > (midground);
+
+    // Create end game overlay
+    // Create overlay panel
+    float overlayW = 350.0f;
+    float overlayH = 251.0f;
+    ST_Entity& overlay = midground.createEntity();
+    SDL_Texture* overlayTexture = ST_TextureManager::load( assetPath + "settings.jpg" );
+    SDL_FRect overlaySrc{ 0, 0, overlayW, overlayH };
+    SDL_FRect overlayDest{ 0, 0, overlayW, overlayH };
+    overlayDest = ST_RenderHelper::getCenterDest( overlayDest, SDL_FRect( 0, 0, m_Window->getWidth(), m_Window->getHeight() ) );
+    overlayDest = ST_RenderHelper::getScaledDest( overlayDest, 2.0f );
+    overlay.addComponent<Sprite>(
+        overlayTexture,
+        overlaySrc,
+        overlayDest,
+        ST_Vector2D( overlayW, overlayH ),
+        false,
+        RenderLayer::UI,
+        false // not visible during gameplay
+    );
+    overlay.addComponent<Transform>( ST_Vector2D( overlayDest.x, overlayDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    overlay.addComponent<Children>();
+    // create overlay panel buttons
+    ST_Entity& exit = midground.createEntity();
+    ST_Entity& rematch = midground.createEntity();
+
+    float buttonW = 512.0f;
+    float buttonH = 320.0f;
+
+    // Set up exit button
+    float buttonOffsetX = 150.0f;
+    float buttonOffsetY = 100.0f;
+    SDL_Texture* exitTexture = ST_TextureManager::load( assetPath + "red-button.PNG" );
+    SDL_FRect exitSrc{ 0, 0, buttonW, buttonH };
+    SDL_FRect exitDest{ 0, 0, buttonW, buttonH };
+    exitDest = ST_RenderHelper::getCenterDest( exitDest, overlayDest );
+    exitDest = ST_RenderHelper::getScaledDest( exitDest, 0.25 );
+    exitDest.x -= buttonOffsetX;
+    exitDest.y += buttonOffsetY;
+    exit.addComponent<Sprite>(
+        exitTexture,
+        exitSrc,
+        exitDest,
+        ST_Vector2D( buttonW, buttonH ),
+        false,
+        RenderLayer::UI,
+        false // not visible during gameplay
+    );
+    exit.addComponent<Transform>( ST_Vector2D( exitDest.x, exitDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    // Set up rematch button
+    SDL_Texture* rematchTexture = ST_TextureManager::load( assetPath + "blue-button.PNG" );
+    SDL_FRect rematchSrc{ 0, 0, buttonW, buttonH };
+    SDL_FRect rematchDest{ 0, 0, buttonW, buttonH };
+    rematchDest = ST_RenderHelper::getCenterDest( rematchDest, overlayDest );
+    rematchDest = ST_RenderHelper::getScaledDest( rematchDest, 0.25 );
+    rematchDest.x += buttonOffsetX;
+    rematchDest.y += buttonOffsetY;
+    rematch.addComponent<Sprite>(
+        rematchTexture,
+        rematchSrc,
+        rematchDest,
+        ST_Vector2D( buttonW, buttonH ),
+        false,
+        RenderLayer::UI,
+        false // not visible during gameplay
+    );
+    rematch.addComponent<Transform>( ST_Vector2D( rematchDest.x, rematchDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
 }
 
 void ST_Game::run()
@@ -343,12 +417,12 @@ void ST_Game::processInput()
 
 void ST_Game::update( float delta )
 {
-    m_SceneManager->update( delta, event );
+    ST_SceneManager::update( delta, event );
 }
 
 void ST_Game::render()
 {
     SDL_RenderClear( ST_TextureManager::getRenderer()->getNativeRenderer() );
-    m_SceneManager->render();
+    ST_SceneManager::render();
     SDL_RenderPresent( ST_TextureManager::getRenderer()->getNativeRenderer() );
 }

@@ -6,7 +6,9 @@ enum class EventType
 {
     Collision,
     PlayerAction,
-    ProjectileUpdate
+    ProjectileUpdate,
+    GameOver,
+    MouseInteraction
 };
 
 struct ST_BaseEvent
@@ -49,5 +51,36 @@ struct ST_PlayerActionEvent : public ST_BaseEvent
         , context( context )
     {
         type = EventType::PlayerAction;
+    }
+};
+
+struct ST_GameOverEvent : public ST_BaseEvent
+{
+    ST_Entity* winner;
+
+    ST_GameOverEvent( ST_Entity* winnerEntity )
+        : winner( winnerEntity )
+    {
+        type = EventType::GameOver;
+    }
+};
+
+enum class MouseInteractionState
+{
+    Pressed,
+    Released,
+    Cancel
+};
+
+struct ST_MouseInteractionEvent : public ST_BaseEvent
+{
+    ST_Entity* entity = nullptr;
+    MouseInteractionState state{};
+
+    ST_MouseInteractionEvent( ST_Entity* entity, MouseInteractionState state )
+        : entity( entity )
+        , state( state )
+    {
+        type = EventType::MouseInteraction;
     }
 };

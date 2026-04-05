@@ -43,6 +43,8 @@ public:
         m_EventManager->subscribe<T>( handler );
     }
 
+    inline Camera& getCamera() { return *m_Camera.get(); }
+
     friend class ST_SceneManager;
 
 private:

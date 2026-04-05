@@ -30,6 +30,12 @@ struct Position
     float y = 0.0f;
 };
 
+enum class RenderLayer
+{
+    Gameplay,
+    UI
+};
+
 struct Sprite
 {
     SDL_Texture* texture = nullptr;
@@ -39,12 +45,35 @@ struct Sprite
     ST_Vector2D fixedDimension{};
 
     bool flip = false;
+    RenderLayer renderLayer = RenderLayer::Gameplay;
+    bool isVisible = true;
+};
+
+struct Clickable
+{
+    std::function<void()> onPressed{};
+    std::function<void()> onReleased{};
+    std::function<void()> onCancel{};
+
+    bool pressed = false;
+};
+
+struct Parent
+{
+    ST_Entity* parent = nullptr;
+};
+
+struct Children
+{
+    std::vector<ST_Entity*> children{};
 };
 
 struct Collider
 {
     std::string tag;
     SDL_FRect rect{};
+
+    bool isEnabled = true;
 };
 
 struct Animation

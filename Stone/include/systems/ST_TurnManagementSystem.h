@@ -51,8 +51,19 @@ public:
 
             // Assign next player's turn and switch state to aiming again
             if (!projectileActive) {
-                nextPlayer();
-                m_State = TurnState::Aiming;
+                // Add delay so camera doesn't instantly snap back to next player
+                if (!m_WaitingForDelay) {
+                    m_WaitingForDelay = true;
+                    m_Timer = 0.0f;
+                }
+
+                m_Timer += context.delta;
+
+                if (m_Timer >= m_ResolveDelay) {
+                    nextPlayer();
+                    m_State = TurnState::Aiming;
+                    m_WaitingForDelay = false;
+                }
             }
 
             break;
@@ -101,4 +112,7 @@ private:
 
     std::vector<ST_Entity*> m_Players;
     size_t m_ActivePlayerIndex = 0;
+    float m_ResolveDelay = 0.5f;
+    float m_Timer = 0.0f;
+    bool m_WaitingForDelay = false;
 };

@@ -26,6 +26,10 @@ public:
                 auto& transform = entity->getComponent<Transform>();
                 auto& sprite = entity->getComponent<Sprite>();
 
+                // filter out map tile and UI elements
+                if (sprite.renderLayer != RenderLayer::Gameplay)
+                    continue;
+
                 // Convert from world coordinates to screen coordinates
                 // by subtracting the camera's position from the entity's position
                 sprite.dest.x = transform.position.x - camera->view.x;

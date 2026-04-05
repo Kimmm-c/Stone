@@ -266,3 +266,49 @@ inline void playerActionHandler( const ST_BaseEvent& event )
     handleProjectileControl( entity, keyEvent );
     handleProjectileSpawn( entity, playerEvent );
 }
+
+inline void gameOverHandler( const ST_BaseEvent& event )
+{
+    const auto& gameOverEvent = static_cast<const ST_GameOverEvent&>(event);
+
+    // Create end scene
+    ST_Scene& gameEndScene = ST_SceneManager::loadScene( "gameend" );
+
+    // Get camera from current scene and set up new camera for the new scene
+    Camera& curCamera = ST_SceneManager::getCurrentScene().getCamera();
+
+    Camera& newCam = gameEndScene.createCamera();
+    newCam.view = curCamera.view;
+    newCam.worldWidth = curCamera.view.w;
+    newCam.worldHeight = curCamera.view.h;
+
+    ST_Layer& gameEndLayer = gameEndScene.createLayer();
+
+    // Add UI text
+
+    // Add Winner
+}
+
+inline void mouseInteractionHandler( const ST_BaseEvent& event )
+{
+    const auto& mouseEvent = static_cast<const ST_MouseInteractionEvent&>(event);
+
+    if (!mouseEvent.entity->hasComponent<Clickable>())
+        return;
+
+    auto& clickable = mouseEvent.entity->getComponent<Clickable>();
+
+    switch (mouseEvent.state) {
+    case MouseInteractionState::Pressed:
+        clickable.onPressed();
+        break;
+    case MouseInteractionState::Released:
+        clickable.onReleased();
+        break;
+    case MouseInteractionState::Cancel:
+        clickable.onCancel();
+        break;
+    default:
+        break;
+    }
+}
