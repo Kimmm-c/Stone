@@ -94,9 +94,9 @@ void ST_Game::init()
     playerA.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
 
     Collider& playerACollider = playerA.addComponent<Collider>( "player" );
-    int offset = 10;
+    int offset = 20;
     playerACollider.rect.w = 64 - offset;
-    playerACollider.rect.h = 64 - offset;
+    playerACollider.rect.h = 64;
 
     playerA.addComponent<PlayerTag>( playerAid );
     playerA.addComponent<Projectile>( playerAid );
@@ -111,7 +111,7 @@ void ST_Game::init()
 
     SDL_Texture* playerATexture = ST_TextureManager::load( assetPath + "animations/bald-walk-animation.png" );
     SDL_FRect playerASrc = animationA.clips[animationA.currentClip].frameIndices[0];
-    SDL_FRect playerADst{ 0, 0, 64, 64 };
+    SDL_FRect playerADst{ 0, 0, 128, 128 };
     playerA.addComponent<Sprite>( playerATexture, playerASrc, playerADst );
 
     // create player B
@@ -122,7 +122,7 @@ void ST_Game::init()
 
     Collider& playerBCollider = playerB.addComponent<Collider>( "player" );
     playerBCollider.rect.w = 64 - offset;
-    playerBCollider.rect.h = 64 - offset;
+    playerBCollider.rect.h = 64;
 
     playerB.addComponent<PlayerTag>( playerBid );
     playerB.addComponent<Projectile>( playerBid );
@@ -137,7 +137,7 @@ void ST_Game::init()
 
     SDL_Texture* playerBTexture = ST_TextureManager::load( assetPath + "animations/red-eye-animation.png" );
     SDL_FRect playerBSrc = animationB.clips[animationB.currentClip].frameIndices[0];
-    SDL_FRect playerBDst{ 0, 0, 64, 64 };
+    SDL_FRect playerBDst{ 0, 0, 128, 128 };
     playerB.addComponent<Sprite>( playerBTexture, playerBSrc, playerBDst );
 
     // Set up foreground layer (for UI elements)

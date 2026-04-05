@@ -38,6 +38,7 @@ private:
                 && entity->hasComponent<Transform>()
                 && entity->hasComponent<Projectile>()
                 && entity->hasComponent<Velocity>()
+                && entity->hasComponent<Sprite>()
                 )
             {
                 int id = entity->getComponent<PlayerTag>().id;
@@ -58,9 +59,13 @@ private:
         Projectile& playerProjectile = player->getComponent<Projectile>();
         int playerId = player->getComponent<PlayerTag>().id;
 
-        // TODO: replace hardcoded dimension
-        float playerCenterX = playerTransform.position.x + 32.0f;
-        float playerCenterY = playerTransform.position.y + 32.0f;
+        // center UI to player using player's sprite dimension
+        float playerCenterX = playerTransform.position.x;
+        float playerCenterY = playerTransform.position.y;
+
+        auto& sprite = player->getComponent<Sprite>();
+        playerCenterX += sprite.dest.w * 0.5f;
+        playerCenterY += sprite.dest.h * 0.5f;
 
         for (auto& entity : entities) {
             // Update the angle pointer associating with the player using player's transform + shooting angle + facing direction
@@ -80,7 +85,7 @@ private:
                     float offsetX = std::cos( angleRad ) * pointer.distFromPlayer * facingDir;
                     float offsetY = -std::sin( angleRad ) * pointer.distFromPlayer;
 
-                    // apply offset to pointer
+                    // position UI to player's center
                     pointerTransform.position.x = playerCenterX + offsetX;
                     pointerTransform.position.y = playerCenterY + offsetY;
                 }
@@ -99,9 +104,10 @@ private:
                     Transform& frameTransform = entity->getComponent<Transform>();
                     Sprite& frameSprite = entity->getComponent<Sprite>();
 
-                    // TODO: replace hardcoded dimension
-                    frameTransform.position.x = playerCenterX - 64.0f;  // frame is 128x128 -> offset by 64 to center on player
-                    frameTransform.position.y = playerCenterY - 64.0f;
+                    float frameHalfW = frameSprite.dest.w * 0.5f;
+                    float frameHalfH = frameSprite.dest.h * 0.5f;
+                    frameTransform.position.x = playerCenterX - frameHalfW;
+                    frameTransform.position.y = playerCenterY - frameHalfH;
 
                     frameSprite.flip = (facingDir < 0) ? true : false;
                 }
