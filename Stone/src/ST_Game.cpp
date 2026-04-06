@@ -506,23 +506,23 @@ void ST_Game::init()
         , overlay
         , assetPath + "red-button.PNG"
         , overlayDest
-        , -meta.buttonOffsetX   // move to the left
+        , 0
         , meta.buttonOffsetY
         , meta
         , [this]() { this->m_IsRunning = false; }
     );
 
-    // Set up rematch button
-    ST_Entity& rematch = createButton(
-        midground
-        , overlay
-        , assetPath + "blue-button.PNG"
-        , overlayDest
-        , meta.buttonOffsetX   // move to the right
-        , meta.buttonOffsetY
-        , meta
-        , [this]() { this->m_IsRunning = false; }
-    );
+    //// Set up rematch button
+    //ST_Entity& rematch = createButton(
+    //    midground
+    //    , overlay
+    //    , assetPath + "blue-button.PNG"
+    //    , overlayDest
+    //    , meta.buttonOffsetX   // move to the right
+    //    , meta.buttonOffsetY
+    //    , meta
+    //    , [this]() { this->m_IsRunning = false; }
+    //);
 
     // Create place holder to display the winner
     ST_Entity& winnerPlaceholder = midground.createEntity();
