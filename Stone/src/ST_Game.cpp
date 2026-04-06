@@ -30,6 +30,227 @@
 static SDL_Event event; // Initialized only once and accessible within this file only
 static std::string assetPath = std::string( ASSET_PATH );
 
+struct ST_GameMetadata
+{
+    // Window / world
+    int worldWidthMultiplier = 2;
+
+    // Player
+    float playerSpeed = 150.0f;
+    ST_Vector2D playerASpawn{ 10.0f, 10.0f };
+    ST_Vector2D playerBSpawn{ 1600.0f, 10.0f };
+    ST_Vector2D healthRange{ 0.0f, 1000.0f };
+
+    // Player sprite
+    SDL_FRect playerSpriteDest{ 0, 0, 128, 128 };
+
+    // Player Collider
+    int colliderOffset = 20;
+    int colliderSize = 64;
+
+    // UI - angle
+    float pointerDistFromPlayer = 50.0f;
+    ST_Vector2D pointerTexSize{ 7.0f, 7.0f };
+    ST_Vector2D frameTexSize{ 128.0f, 128.0f };
+
+    // Bar offset and padding
+    float barOffsetY = 10.0f;
+    float barOffsetX = 5.0f;
+    float barPadding = 5.0f;
+
+    // UI - power bar
+    ST_Vector2D powerBarDim{ 416.0f, 32.0f };
+
+    // UI - health
+    ST_Vector2D healthSize{ 416.0f, 16.0f };
+
+    // Overlay
+    float overlayW = 350.0f;
+    float overlayH = 251.0f;
+
+    // Buttons
+    float buttonW = 512.0f;
+    float buttonH = 320.0f;
+    float buttonOffsetX = 150.0f;
+    float buttonOffsetY = 100.0f;
+};
+
+static ST_Entity& createPlayer(
+    ST_Layer& layer
+    , const ST_GameMetadata& meta
+    , int playerId
+    , const ST_Vector2D& pos
+    , const std::string& animName
+    , const std::string& animPath
+    , const std::string& texturePath
+)
+{
+    ST_Entity& player = layer.createEntity();
+
+    player.addComponent<Transform>( pos, ST_Vector2D( 0, 0 ), 0.0f, 1.0f );
+    player.addComponent<Velocity>( ST_Vector2D( 0, 0 ), meta.playerSpeed );
+
+    auto& collider = player.addComponent<Collider>( "player" );
+    collider.rect.w = meta.colliderSize - meta.colliderOffset;
+    collider.rect.h = meta.colliderSize;
+
+    player.addComponent<PlayerTag>( playerId );
+    player.addComponent<Projectile>( playerId );
+    player.addComponent<Health>( meta.healthRange );
+    player.addComponent<PlayerActionFlags>();
+    player.addComponent<PlayerStateComponent>();
+
+    ST_AssetManager::loadAnimation( animName.c_str(), animPath );
+    Animation anim = ST_AssetManager::getAnimation( animName.c_str() );
+    player.addComponent<Animation>( anim );
+
+    SDL_Texture* tex = ST_TextureManager::load( texturePath );
+    SDL_FRect src = anim.clips[anim.currentClip].frameIndices[0];
+
+    player.addComponent<Sprite>( tex, src, meta.playerSpriteDest );
+
+    return player;
+}
+
+static ST_Entity& createButton(
+    ST_Layer& layer
+    , ST_Entity& parent
+    , const std::string& texturePath
+    , const SDL_FRect& parentRect
+    , float offsetX
+    , float offsetY
+    , const ST_GameMetadata& meta
+    , std::function<void()> onClick
+)
+{
+    ST_Entity& button = layer.createEntity();
+
+    SDL_Texture* texture = ST_TextureManager::load( texturePath );
+    SDL_FRect src{ 0, 0, meta.buttonW, meta.buttonH };
+    SDL_FRect dest = ST_RenderHelper::getCenterDest( src, parentRect );
+    dest = ST_RenderHelper::getScaledDest( dest, 0.25 );
+    dest.x += offsetX;
+    dest.y += offsetY;
+    button.addComponent<Sprite>(
+        texture,
+        src,
+        dest,
+        ST_Vector2D( meta.buttonW, meta.buttonH ),
+        false,
+        RenderLayer::UI,
+        false // not visible during gameplay
+    );
+    Transform& transform = button.addComponent<Transform>( ST_Vector2D( dest.x, dest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    button.addComponent<Parent>( &parent );
+    button.addComponent<Collider>( "ui", dest );
+
+    Clickable& clickable = button.addComponent<Clickable>();
+
+    // shrink slightly when pressed
+    clickable.onPressed = [&transform]() {
+        transform.scale = 0.75;
+        };
+
+    // restore button's size when mouse leaves
+    clickable.onCancel = [&transform]() {
+        transform.scale = 1.0f;
+        };
+
+    // restore button's size + exit game
+    clickable.onReleased = [onClick, &transform]() {
+        transform.scale = 1.0f;
+        onClick();
+        };
+
+    if (parent.hasComponent<Children>())
+        parent.getComponent<Children>().children.push_back( &button );
+    else
+        SDL_Log( "Failed to find children component!" );
+
+    return button;
+}
+
+ST_Entity& createHealthBar(
+    ST_Layer& layer
+    , SDL_Texture* healthTexture
+    , ST_GameMetadata& meta
+    , float offsetX
+    , float offsetY
+    , int id
+    , bool flip
+)
+{
+    ST_Entity& healthBar = layer.createEntity();
+
+    SDL_FRect healthDim{ 0, 0, meta.healthSize.x, meta.healthSize.y };
+    healthBar.addComponent<Sprite>( healthTexture, healthDim, healthDim, meta.healthSize, flip );
+    healthBar.addComponent<Transform>( ST_Vector2D( offsetX, offsetY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    healthBar.addComponent<HealthUITag>( id );
+
+    ST_Vector2D fixedHealthUIPosition{ offsetX, offsetY };
+    healthBar.addComponent<ScreenSpaceUI>( fixedHealthUIPosition );
+
+    return healthBar;
+}
+
+static void createPowerBar(
+    ST_Layer& layer
+    , SDL_Texture* gradientTexture
+    , SDL_Texture* outlineTexture
+    , const ST_GameMetadata& meta
+    , float offsetX
+    , float offsetY
+    , int id
+    , bool flip )
+{
+    ST_Entity& barGradient = layer.createEntity();
+    ST_Entity& barOutline = layer.createEntity();
+
+    SDL_FRect gradientTextureSrc{ 0, 0, 0, 0 }; // power should be empty when game starts
+    SDL_FRect gradientTextureDest{ 0, 0, meta.powerBarDim.x, meta.powerBarDim.y };
+
+    SDL_FRect outlineTextureSrc{ 0, 0, meta.powerBarDim.x, meta.powerBarDim.y };
+
+    barGradient.addComponent<Sprite>( gradientTexture, gradientTextureSrc, gradientTextureDest, meta.powerBarDim, flip );
+    barOutline.addComponent<Sprite>( outlineTexture, outlineTextureSrc, outlineTextureSrc );
+    barGradient.addComponent<Transform>( ST_Vector2D( offsetX, offsetY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    barOutline.addComponent<Transform>( ST_Vector2D( offsetX, offsetY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    barGradient.addComponent<PowerBarTag>( id );
+
+    ST_Vector2D fixedPowerUIPosition{ offsetX, offsetY };
+    barGradient.addComponent<ScreenSpaceUI>( fixedPowerUIPosition );
+    barOutline.addComponent<ScreenSpaceUI>( fixedPowerUIPosition );
+}
+
+static void createShootingAngleUI(
+    ST_Layer& layer
+    , SDL_Texture* pointerTexture
+    , SDL_Texture* frameTexture
+    , const ST_GameMetadata& meta
+    , const ST_Vector2D& playerPos
+    , int id
+)
+{
+    ST_Entity& pointer = layer.createEntity();
+    ST_Entity& frame = layer.createEntity();
+
+    float pointerX = (playerPos.x + 64.0f) / 2.0f;
+    float pointerY = (playerPos.y + 64.0f) / 2.0f;
+    float frameX = playerPos.x - 64.0f;
+    float frameY = playerPos.y - 64.0f;
+    SDL_FRect pointerSrc{ 0, 0, meta.pointerTexSize.x, meta.pointerTexSize.y };
+    SDL_FRect frameSrc{ 0, 0, meta.frameTexSize.x, meta.frameTexSize.y };
+
+    pointer.addComponent<Sprite>( pointerTexture, pointerSrc, pointerSrc );
+    frame.addComponent<Sprite>( frameTexture, frameSrc, frameSrc );
+    pointer.addComponent<Transform>( ST_Vector2D( pointerX, pointerY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+    frame.addComponent<Transform>( ST_Vector2D( frameX, frameY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
+
+    pointer.addComponent<AnglePointerUI>( id, meta.pointerDistFromPlayer );
+    frame.addComponent<AngleFrameUITag>( id );
+}
+
 ST_Game::ST_Game( const char* title, int windowWidth, int windowHeight, bool fullScreen, uint32_t frameRate )
 {
     m_Window = std::make_unique<ST_Window>( title, windowWidth, windowHeight, fullScreen );
@@ -51,6 +272,8 @@ ST_Game::ST_Game( const char* title, int windowWidth, int windowHeight, bool ful
 
 void ST_Game::init()
 {
+    ST_GameMetadata meta;
+
     // create a gameplay scene
     ST_Scene& gameplayScene = ST_SceneManager::loadScene( "gameplay", true );
 
@@ -93,182 +316,113 @@ void ST_Game::init()
     // Create players
     int playerAid = 0;
     int playerBid = 1;
-    ST_Vector2D healthRange{ 0.0f, 1000.0f };
 
     // create player A
-    ST_Entity& playerA = midground.createEntity();
-    ST_Vector2D playerAPos{ 10.0f, 10.0f };
-    playerA.addComponent<Transform>( playerAPos, ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    playerA.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
-
-    Collider& playerACollider = playerA.addComponent<Collider>( "player" );
-    int offset = 20;
-    playerACollider.rect.w = 64 - offset;
-    playerACollider.rect.h = 64;
-
-    playerA.addComponent<PlayerTag>( playerAid );
-    playerA.addComponent<Projectile>( playerAid );
-    playerA.addComponent<Health>( healthRange );
-    playerA.addComponent<PlayerActionFlags>();
-    playerA.addComponent<PlayerStateComponent>();
-
-    const char* animationNameA = "bald";
-    ST_AssetManager::loadAnimation( animationNameA, assetPath + "animations/bald-walk-animation.xml" );
-    Animation animationA = ST_AssetManager::getAnimation( animationNameA );
-    playerA.addComponent<Animation>( animationA );
-
-    SDL_Texture* playerATexture = ST_TextureManager::load( assetPath + "animations/bald-walk-animation.png" );
-    SDL_FRect playerASrc = animationA.clips[animationA.currentClip].frameIndices[0];
-    SDL_FRect playerADst{ 0, 0, 128, 128 };
-    playerA.addComponent<Sprite>( playerATexture, playerASrc, playerADst );
+    ST_Entity& playerA = createPlayer(
+        midground
+        , meta
+        , playerAid
+        , meta.playerASpawn
+        , "bald"
+        , assetPath + "animations/bald-walk-animation.xml"
+        , assetPath + "animations/bald-walk-animation.png"
+    );
 
     // create player B
-    ST_Entity& playerB = midground.createEntity();
-    ST_Vector2D playerBPos{ 1600.0f, 10.0f };
-    playerB.addComponent<Transform>( playerBPos, ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    playerB.addComponent<Velocity>( ST_Vector2D( 0.0f, 0.0f ), 150.0f );
-
-    Collider& playerBCollider = playerB.addComponent<Collider>( "player" );
-    playerBCollider.rect.w = 64 - offset;
-    playerBCollider.rect.h = 64;
-
-    playerB.addComponent<PlayerTag>( playerBid );
-    playerB.addComponent<Projectile>( playerBid );
-    playerB.addComponent<Health>( healthRange );
-    playerB.addComponent<PlayerActionFlags>();
-    playerB.addComponent<PlayerStateComponent>();
-
-    const char* animationNameB = "red-eye";
-    ST_AssetManager::loadAnimation( animationNameB, assetPath + "animations/red-eye-animation.xml" );
-    Animation animationB = ST_AssetManager::getAnimation( animationNameB );
-    playerB.addComponent<Animation>( animationB );
-
-    SDL_Texture* playerBTexture = ST_TextureManager::load( assetPath + "animations/red-eye-animation.png" );
-    SDL_FRect playerBSrc = animationB.clips[animationB.currentClip].frameIndices[0];
-    SDL_FRect playerBDst{ 0, 0, 128, 128 };
-    playerB.addComponent<Sprite>( playerBTexture, playerBSrc, playerBDst );
-
-    // Set up foreground layer (for UI elements)
-    ST_Layer& foreground = gameplayScene.createLayer();
+    ST_Entity& playerB = createPlayer(
+        midground
+        , meta
+        , playerBid
+        , meta.playerBSpawn
+        , "red-eye"
+        , assetPath + "animations/red-eye-animation.xml"
+        , assetPath + "animations/red-eye-animation.png"
+    );
 
     // Create shooting angle UI elements
-    ST_Entity& anglePointertA = midground.createEntity();
-    ST_Entity& angleFrameA = midground.createEntity();
-    ST_Entity& anglePointertB = midground.createEntity();
-    ST_Entity& angleFrameB = midground.createEntity();
-
-    ST_Vector2D pointerTexDimension{ 7.0f, 7.0f };
-    ST_Vector2D frameTexDimension{ 128.0f, 128.0f };
-
     SDL_Texture* pointerTexture = ST_TextureManager::load( assetPath + "angle-pointer.PNG" );
-    SDL_FRect pointerDim{ 0, 0, pointerTexDimension.x, pointerTexDimension.y };
-
     SDL_Texture* frameTexture = ST_TextureManager::load( assetPath + "angle-frame.PNG" );
-    SDL_FRect frameDim{ 0, 0, frameTexDimension.x, frameTexDimension.y };
-
-    float distFromPlayer = 50.0f;
 
     // Player A's shooting angle UI
-    float pointerAX = (playerAPos.x + 64.0f) / 2.0f;
-    float pointerAY = (playerAPos.y + 64.0f) / 2.0f;
-    float frameAX = playerAPos.x - 64.0f;
-    float frameAY = playerAPos.y - 64.0f;
-
-    anglePointertA.addComponent<Sprite>( pointerTexture, pointerDim, pointerDim );
-    angleFrameA.addComponent<Sprite>( frameTexture, frameDim, frameDim );
-    anglePointertA.addComponent<Transform>( ST_Vector2D( pointerAX, pointerAY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    angleFrameA.addComponent<Transform>( ST_Vector2D( frameAX, frameAY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-
-    anglePointertA.addComponent<AnglePointerUI>( playerAid, distFromPlayer );
-    angleFrameA.addComponent<AngleFrameUITag>( playerAid );
+    createShootingAngleUI(
+        midground
+        , pointerTexture
+        , frameTexture
+        , meta
+        , meta.playerASpawn
+        , playerAid
+    );
 
     // Player B's shooting angle UI
-    float pointerBX = (playerBPos.x + 64.0f) / 2.0f;
-    float pointerBY = (playerBPos.y + 64.0f) / 2.0f;
-    float frameBX = playerBPos.x - 64.0f;
-    float frameBY = playerBPos.y - 64.0f;
-
-    anglePointertB.addComponent<Sprite>( pointerTexture, pointerDim, pointerDim );
-    angleFrameB.addComponent<Sprite>( frameTexture, frameDim, frameDim );
-    anglePointertB.addComponent<Transform>( ST_Vector2D( pointerBX, pointerBY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    angleFrameB.addComponent<Transform>( ST_Vector2D( frameBX, frameBY ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-
-    anglePointertB.addComponent<AnglePointerUI>( playerBid, distFromPlayer );
-    angleFrameB.addComponent<AngleFrameUITag>( playerBid );
+    createShootingAngleUI(
+        midground
+        , pointerTexture
+        , frameTexture
+        , meta
+        , meta.playerBSpawn
+        , playerBid
+    );
 
     // Create shooting power UI elements
-    ST_Entity& barGradientA = midground.createEntity();
-    ST_Entity& barOutlineA = midground.createEntity();
-    ST_Entity& barGradientB = midground.createEntity();
-    ST_Entity& barOutlineB = midground.createEntity();
-
-    float barSrcWidth = 416.0f;
-    float barSrcHeight = 32.0f;
     float barWidthOffsetA = 5.0f;
-    float barWidthOffsetB = m_Window->getWidth() - (barSrcWidth + 5.0f);
+    float barWidthOffsetB = m_Window->getWidth() - (meta.powerBarDim.x + 5.0f);
     float barHeightOffset = 10.0f;
 
     SDL_Texture* gradientTexture = ST_TextureManager::load( assetPath + "power-bar-gradient.PNG" );
-    SDL_FRect gradientTextureSrc{ 0, 0, 0, 0 };
-    SDL_FRect gradientTextureDest{ 0, 0, barSrcWidth,barSrcHeight };
-
     SDL_Texture* outlineTexture = ST_TextureManager::load( assetPath + "power-bar-outline.PNG" );
-    SDL_FRect outlineTextureSrc{ 0, 0, barSrcWidth,barSrcHeight };
-    SDL_FRect outlineTextureDest{ 0, 0, barSrcWidth,barSrcHeight };
-
-    ST_Vector2D barFixedDimension{ barSrcWidth, barSrcHeight };
 
     // Player A's power bar
-    barGradientA.addComponent<Sprite>( gradientTexture, gradientTextureSrc, gradientTextureDest, barFixedDimension );
-    barOutlineA.addComponent<Sprite>( outlineTexture, outlineTextureSrc, outlineTextureDest );
-    barGradientA.addComponent<Transform>( ST_Vector2D( barWidthOffsetA, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    barOutlineA.addComponent<Transform>( ST_Vector2D( barWidthOffsetA, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-
-    barGradientA.addComponent<PowerBarTag>( playerAid );
-
-    ST_Vector2D fixedPowerUIPositionA{ barWidthOffsetA, barHeightOffset };
-    barGradientA.addComponent<ScreenSpaceUI>( fixedPowerUIPositionA );
-    barOutlineA.addComponent<ScreenSpaceUI>( fixedPowerUIPositionA );
+    createPowerBar(
+        midground
+        , gradientTexture
+        , outlineTexture
+        , meta
+        , barWidthOffsetA
+        , barHeightOffset
+        , playerAid
+        , false
+    );
 
     // Player B's power bar
-    barGradientB.addComponent<Sprite>( gradientTexture, gradientTextureSrc, gradientTextureDest, barFixedDimension );
-    barOutlineB.addComponent<Sprite>( outlineTexture, outlineTextureSrc, outlineTextureDest );
-    barGradientB.addComponent<Transform>( ST_Vector2D( barWidthOffsetB, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    barOutlineB.addComponent<Transform>( ST_Vector2D( barWidthOffsetB, barHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-
-    barGradientB.addComponent<PowerBarTag>( playerBid );
-
-    ST_Vector2D fixedPowerUIPositionB{ barWidthOffsetB, barHeightOffset };
-    barGradientB.addComponent<ScreenSpaceUI>( fixedPowerUIPositionB );
-    barOutlineB.addComponent<ScreenSpaceUI>( fixedPowerUIPositionB );
+    createPowerBar(
+        midground
+        , gradientTexture
+        , outlineTexture
+        , meta
+        , barWidthOffsetB
+        , barHeightOffset
+        , playerBid
+        , true
+    );
 
     // Create health bars
-    ST_Entity& healthBarA = midground.createEntity();
-    ST_Entity& healthBarB = midground.createEntity();
-
-    ST_Vector2D fixedHealthDim{ 416.0f, 16.0f };
     float healthWidthOffsetA = 5.0f;
-    float healthWidthOffsetB = m_Window->getWidth() - (barSrcWidth + 5.0f);
-    float healthHeightOffset = 10.0f + (barHeightOffset + barSrcHeight);
+    float healthWidthOffsetB = m_Window->getWidth() - (meta.powerBarDim.x + 5.0f);
+    float healthHeightOffset = 10.0f + (barHeightOffset + meta.powerBarDim.y);
 
     SDL_Texture* healthTexture = ST_TextureManager::load( assetPath + "health.PNG" );
-    SDL_FRect healthDim{ 0, 0, fixedHealthDim.x, fixedHealthDim.y };
 
     // Create playerA's health UI
-    healthBarA.addComponent<Sprite>( healthTexture, healthDim, healthDim, fixedHealthDim );
-    healthBarA.addComponent<Transform>( ST_Vector2D( healthWidthOffsetA, healthHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    healthBarA.addComponent<HealthUITag>( playerAid );
-
-    ST_Vector2D fixedHealthUIPositionA{ healthWidthOffsetA, healthHeightOffset };
-    healthBarA.addComponent<ScreenSpaceUI>( fixedHealthUIPositionA );
+    ST_Entity& healthBarA = createHealthBar(
+        midground
+        , healthTexture
+        , meta
+        , healthWidthOffsetA
+        , healthHeightOffset
+        , playerAid
+        , false
+    );
 
     // Create playerB's health UI
-    healthBarB.addComponent<Sprite>( healthTexture, healthDim, healthDim, fixedHealthDim, true );
-    healthBarB.addComponent<Transform>( ST_Vector2D( healthWidthOffsetB, healthHeightOffset ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    healthBarB.addComponent<HealthUITag>( playerBid );
-
-    ST_Vector2D fixedHealthUIPositionB{ healthWidthOffsetB, healthHeightOffset };
-    healthBarB.addComponent<ScreenSpaceUI>( fixedHealthUIPositionB );
+    ST_Entity& healthBarB = createHealthBar(
+        midground
+        , healthTexture
+        , meta
+        , healthWidthOffsetB
+        , healthHeightOffset
+        , playerBid
+        , true
+    );
 
     // Register event handler
     gameplayScene.registerEventHandler<ST_PlayerActionEvent>( playerActionHandler );
@@ -346,91 +500,29 @@ void ST_Game::init()
 
 
     // create overlay panel buttons
-    ST_Entity& exit = midground.createEntity();
-    ST_Entity& rematch = midground.createEntity();
-
-    float buttonW = 512.0f;
-    float buttonH = 320.0f;
-
     // Set up exit button
-    float buttonOffsetX = 150.0f;
-    float buttonOffsetY = 100.0f;
-    SDL_Texture* exitTexture = ST_TextureManager::load( assetPath + "red-button.PNG" );
-    SDL_FRect exitSrc{ 0, 0, buttonW, buttonH };
-    SDL_FRect exitDest{ 0, 0, buttonW, buttonH };
-    exitDest = ST_RenderHelper::getCenterDest( exitDest, overlayDest );
-    exitDest = ST_RenderHelper::getScaledDest( exitDest, 0.25 );
-    exitDest.x -= buttonOffsetX;
-    exitDest.y += buttonOffsetY;
-    exit.addComponent<Sprite>(
-        exitTexture,
-        exitSrc,
-        exitDest,
-        ST_Vector2D( buttonW, buttonH ),
-        false,
-        RenderLayer::UI,
-        false // not visible during gameplay
+    ST_Entity& exit = createButton(
+        midground
+        , overlay
+        , assetPath + "red-button.PNG"
+        , overlayDest
+        , -meta.buttonOffsetX   // move to the left
+        , meta.buttonOffsetY
+        , meta
+        , [this]() { this->m_IsRunning = false; }
     );
-    Transform& exitTransform = exit.addComponent<Transform>( ST_Vector2D( exitDest.x, exitDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    exit.addComponent<Parent>( &overlay );
-    exit.addComponent<Collider>( "ui", exitDest );
-    Clickable& exitButton = exit.addComponent<Clickable>();
-    // shrink slightly when pressed
-    exitButton.onPressed = [&exitTransform]() {
-        exitTransform.scale = 0.75;
-        };
-
-    // restore button's size when mouse leaves
-    exitButton.onCancel = [&exitTransform]() {
-        exitTransform.scale = 1.0f;
-        };
-
-    // restore button's size + exit game
-    exitButton.onReleased = [this, &exitTransform]() {
-        exitTransform.scale = 1.0f;
-
-        this->m_IsRunning = false;  // stops main loop
-        };
-    overlayChildren.children.push_back( &exit );
-
 
     // Set up rematch button
-    SDL_Texture* rematchTexture = ST_TextureManager::load( assetPath + "blue-button.PNG" );
-    SDL_FRect rematchSrc{ 0, 0, buttonW, buttonH };
-    SDL_FRect rematchDest{ 0, 0, buttonW, buttonH };
-    rematchDest = ST_RenderHelper::getCenterDest( rematchDest, overlayDest );
-    rematchDest = ST_RenderHelper::getScaledDest( rematchDest, 0.25 );
-    rematchDest.x += buttonOffsetX;
-    rematchDest.y += buttonOffsetY;
-    rematch.addComponent<Sprite>(
-        rematchTexture,
-        rematchSrc,
-        rematchDest,
-        ST_Vector2D( buttonW, buttonH ),
-        false,
-        RenderLayer::UI,
-        false // not visible during gameplay
+    ST_Entity& rematch = createButton(
+        midground
+        , overlay
+        , assetPath + "blue-button.PNG"
+        , overlayDest
+        , meta.buttonOffsetX   // move to the right
+        , meta.buttonOffsetY
+        , meta
+        , [this]() { this->m_IsRunning = false; }
     );
-    Transform rematchTransform = rematch.addComponent<Transform>( ST_Vector2D( rematchDest.x, rematchDest.y ), ST_Vector2D( 0.0f, 0.0f ), 0.0f, 1.0f );
-    rematch.addComponent<Parent>( &overlay );
-    rematch.addComponent<Collider>( "ui", rematchDest );
-    Clickable& rematchButton = rematch.addComponent<Clickable>();
-
-    rematchButton.onPressed = [&rematchTransform]() {
-        rematchTransform.scale = 0.75f;
-        };
-
-    rematchButton.onCancel = [&rematchTransform]() {
-        rematchTransform.scale = 1.0f;
-        };
-
-    rematchButton.onReleased = [this, &rematchTransform]() {
-        rematchTransform.scale = 1.0f;
-
-        // Restart game
-        this->restart();
-        };
-    overlayChildren.children.push_back( &rematch );
 
     // Create place holder to display the winner
     ST_Entity& winnerPlaceholder = midground.createEntity();
