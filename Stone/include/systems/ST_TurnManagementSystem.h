@@ -3,6 +3,7 @@
 #include "ST_ISystem.h"
 #include "ST_Component.h"
 #include "ST_Layer.h"
+#include "ST_MathHelper.h"
 
 class ST_TurnManagementSystem : public ST_ISystem
 {
@@ -18,7 +19,7 @@ public:
             }
 
             if (!m_Players.empty()) {
-                m_ActivePlayerIndex = 0;
+                m_ActivePlayerIndex = ST_MathHelper::getIntInRange( 0, 1 );
             }
         }
 

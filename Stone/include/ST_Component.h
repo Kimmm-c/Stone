@@ -104,9 +104,9 @@ struct Projectile
 {
     int id;
     int angle = 30;
-    int forceIncrement = 10;
+    int forceIncrement = 20;
 
-    ST_Vector2D forceRange{ 10, 1000 };
+    ST_Vector2D forceRange{ 20, 2000 };
     ST_Vector2D angleRange{ 0, 89 };
 
     int currentForce = static_cast<int>(forceRange.x);
