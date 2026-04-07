@@ -267,6 +267,7 @@ inline void playerActionHandler( const ST_BaseEvent& event )
     handleProjectileSpawn( entity, playerEvent );
 }
 
+// TODO: refactor gameover handler
 inline void gameOverHandler( const ST_BaseEvent& event )
 {
     const auto& gameOverEvent = static_cast<const ST_GameOverEvent&>(event);
@@ -301,6 +302,15 @@ inline void gameOverHandler( const ST_BaseEvent& event )
         , 0.0f
         , 1.0f
     );
+
+    // Set up idle Animation
+    // copy the animation component of the winner
+    // set clip to idle, reset accumulated time and move pointer to first frame of the clip
+    Animation anim = gameOverEvent.winner->getComponent<Animation>();
+    anim.currentClip = "idle";
+    anim.currentFrame = 0;
+    anim.time = 0.0f;
+    winnerPlaceholder->addComponent<Animation>( anim );
 
     // make the overlay and its children visible
     overlaySprite.isVisible = true;

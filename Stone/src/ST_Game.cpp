@@ -39,7 +39,7 @@ struct ST_GameMetadata
     float playerSpeed = 150.0f;
     ST_Vector2D playerASpawn{ 10.0f, 10.0f };
     ST_Vector2D playerBSpawn{ 500.0f, 10.0f };
-    ST_Vector2D healthRange{ 0.0f, 5000.0f };
+    ST_Vector2D healthRange{ 0.0f, 1000.0f };
 
     // Player sprite
     SDL_FRect playerSpriteDest{ 0, 0, 128, 128 };
