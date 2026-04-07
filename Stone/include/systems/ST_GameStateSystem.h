@@ -35,7 +35,7 @@ public:
                     gameState->winner = findOtherPlayer( layer, entity.get() );
                     gameState->overlay = findGameEndOverlay( layer );
 
-                    context.eventManager.emit<ST_GameOverEvent>( ST_GameOverEvent( gameState->winner, gameState->overlay ) );
+                    //context.eventManager.emit<ST_GameOverEvent>( ST_GameOverEvent( gameState->winner, gameState->overlay ) );
 
                     SDL_Log( "Game has ended!" );
                     return;

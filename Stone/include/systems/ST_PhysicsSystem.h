@@ -25,7 +25,7 @@ public:
 
                 t.oldPosition = t.position;
 
-                t.position.x += v.direction.x * v.speed * context.delta;
+                //t.position.x += v.direction.x * v.speed * context.delta;
                 t.position.y += v.direction.y * v.speed * context.delta;
             }
         }
