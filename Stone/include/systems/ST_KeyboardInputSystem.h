@@ -31,4 +31,7 @@ public:
             }
         }
     }
+
+private:
+    const bool* keystate = SDL_GetKeyboardState( NULL );
 };

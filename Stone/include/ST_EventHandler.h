@@ -151,7 +151,7 @@ inline void handleProjectileControl( ST_Entity* entity, const SDL_Event& event )
 
     const bool isUp = (key == SDLK_W || key == SDLK_UP);
     const bool isDown = (key == SDLK_S || key == SDLK_DOWN);
-    const bool isShift = (key == SDLK_LSHIFT || key == SDLK_RSHIFT);
+    const bool isShift = (key == SDLK_E || key == SDLK_SLASH);
 
     if (event.type == SDL_EVENT_KEY_DOWN)
     {
@@ -191,7 +191,7 @@ inline void handleProjectileSpawn( ST_Entity* entity, const ST_PlayerActionEvent
     const auto& keyEvent = playerEvent.context.event;
     const auto key = keyEvent.key.key;
 
-    const bool isShift = (key == SDLK_LSHIFT || key == SDLK_RSHIFT);
+    const bool isShift = (key == SDLK_E || key == SDLK_SLASH);
 
     if (keyEvent.type == SDL_EVENT_KEY_UP && isShift)
     {
@@ -246,7 +246,7 @@ inline void playerActionHandler( const ST_BaseEvent& event )
         validInput = (
             key == SDLK_A || key == SDLK_D ||
             key == SDLK_W || key == SDLK_S ||
-            key == SDLK_LSHIFT
+            key == SDLK_E
             );
     }
     else if (playerID == 1)
@@ -255,7 +255,7 @@ inline void playerActionHandler( const ST_BaseEvent& event )
         validInput = (
             key == SDLK_LEFT || key == SDLK_RIGHT ||
             key == SDLK_UP || key == SDLK_DOWN ||
-            key == SDLK_RSHIFT
+            key == SDLK_SLASH
             );
     }
 

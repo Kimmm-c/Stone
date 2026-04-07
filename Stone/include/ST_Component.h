@@ -104,7 +104,7 @@ struct Projectile
 {
     int id;
     int angle = 30;
-    int forceIncrement = 50;
+    int forceIncrement = 10;
 
     ST_Vector2D forceRange{ 10, 1000 };
     ST_Vector2D angleRange{ 0, 89 };
