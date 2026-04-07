@@ -13,6 +13,14 @@ public:
         // emit the user input
         auto& entities = layer.getEntities();
 
+        // Disable keyboard input event if gamestate is gameover
+        for (auto& entity : entities) {
+            if (entity->hasComponent<GameStateComponent>()) {
+                if (entity->getComponent<GameStateComponent>().state == GameState::GameOver)
+                    return;
+            }
+        }
+
         if (context.event.type == SDL_EVENT_KEY_DOWN || context.event.type == SDL_EVENT_KEY_UP) {
             for (auto& entity : entities) {
                 if (!entity->isActive()) continue;
@@ -20,18 +28,7 @@ public:
                 if (entity->hasComponent<ActivePlayerTag>()) {
                     context.eventManager.emit<ST_PlayerActionEvent>( ST_PlayerActionEvent( entity.get(), layer, context ) );
                 }
-
-                //if (entity->hasComponent<ProjectileAngleTag>()) {
-                //    context.eventManager.emit<ST_ProjectileAngleEvent>( ST_ProjectileAngleEvent( entity.get(), context.event ) );
-                //}
-
-                //if (entity->hasComponent<ProjectileChargeTag>()) {
-                //    context.eventManager.emit<ST_ProjectileChargeEvent>( ST_ProjectileChargeEvent( entity.get(), context.event ) );
-                //}
             }
         }
     }
-
-private:
-    const bool* keystate = SDL_GetKeyboardState( NULL );
 };
