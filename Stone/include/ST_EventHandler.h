@@ -4,6 +4,8 @@
 #include "ST_Component.h"
 #include "ST_Entity.h"
 #include "ST_MathHelper.h"
+#include "ST_AudioEventQueue.h"
+#include "ST_Collision.h"
 
 #include <algorithm>
 

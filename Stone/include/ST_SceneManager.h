@@ -5,48 +5,30 @@
 #include <memory>
 #include <string>
 
-#include "ST_Scene.h"
+class ST_Scene;
+class ST_GameMetadata;
 
 class ST_SceneManager
 {
 public:
-    static ST_Scene& loadScene( const std::string& sceneName, bool isCurrentScene = false )
-    {
-        auto [it, inserted] = m_Scenes.emplace( sceneName, std::make_unique<ST_Scene>() );
+    static void loadScene( const std::string& sceneName, const ST_GameMetadata& meta );
 
-        if (isCurrentScene) m_CurrentScene = it->second.get();
+    static void render();
 
-        return *it->second;
-    }
+    static void changeSceneDeferred( const std::string& name );
 
-    static void update( float delta, SDL_Event& event )
-    {
-        if (m_CurrentScene) m_CurrentScene->update( delta, event );
-    }
+    static void update( const float delta, SDL_Event& e );
 
-    static void render()
-    {
-        if (m_CurrentScene) m_CurrentScene->render();
-    }
+    inline static void requestQuit() { m_ShouldQuit = true; }
 
-    static void changeScene( const std::string& sceneName )
-    {
-        auto it = m_Scenes.find( sceneName );
-
-        if (it != m_Scenes.end()) {
-            m_CurrentScene = it->second.get();
-        }
-        else {
-            SDL_Log( "Can't find scene!" );
-        }
-    }
-
-    static ST_Scene& getCurrentScene()
-    {
-        return *m_CurrentScene;
-    }
+public:
+    static bool m_ShouldQuit;
 
 private:
-    static ST_Scene* m_CurrentScene;
-    static std::unordered_map<std::string, std::unique_ptr<ST_Scene>> m_Scenes;
+    static void changeScene( const std::string& name );
+
+private:
+    static std::string m_PendingScene;
+    static std::unique_ptr<ST_Scene> m_CurrentScene;
+    static std::unordered_map<std::string, ST_GameMetadata> m_SceneConfigs;
 };
