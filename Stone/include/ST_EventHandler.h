@@ -116,8 +116,12 @@ inline void collisionHandler( const ST_BaseEvent& event )
 
 inline void handleMovement( ST_Entity* entity, const SDL_Event& event )
 {
-    if (!entity->hasComponent<Velocity>())
+    if (!entity->hasComponent<Velocity>() || !entity->hasComponent<PlayerStateComponent>())
         return;
+
+    //// block horizontal movement when falling
+    //if (entity->getComponent<PlayerStateComponent>().state == PlayerState::Falling)
+    //    return;
 
     auto& velocity = entity->getComponent<Velocity>();
     const auto key = event.key.key;

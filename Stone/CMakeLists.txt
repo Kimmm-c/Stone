@@ -16,6 +16,7 @@ add_executable (Stone
 set(SDL3_LIB_DIR "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3")
 set(SDL3_IMAGE_LIB_DIR "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3_Image/x64")
 set(SDL3_MIXER_LIB_DIR "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3_Mixer")
+set(SDL3_TTF_LIB_DIR "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3_ttf")
 
 # ---- Include Directories (VC++ -> Include Directories) ----
 target_include_directories(Stone
@@ -31,6 +32,7 @@ target_link_directories(Stone
         ${SDL3_LIB_DIR}
         ${SDL3_IMAGE_LIB_DIR}
         ${SDL3_MIXER_LIB_DIR}
+        ${SDL3_TTF_LIB_DIR}
 )
 
 # ---- Linker -> Input -> Additional Dependencies ----
@@ -39,6 +41,7 @@ target_link_libraries(Stone
         "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3/libSDL3.dll.a"
         SDL3_image.lib
         "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3_Mixer/libSDL3_mixer.dll.a"
+        "${CMAKE_SOURCE_DIR}/Stone/libs/SDL3_ttf/libSDL3_ttf.dll.a"
 )
 
 # Copy DLLs after build

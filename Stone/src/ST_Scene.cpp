@@ -214,11 +214,11 @@ ST_Scene::ST_Scene( const ST_GameMetadata& meta )
     camera.worldHeight = meta.windowH;
 
     // Set up sound effects
-    ST_AudioManager::init();
     ST_AudioManager::loadAudio( "whoosh", assetPath + "audios/sfx/whoosh.mp3" );
     ST_AudioManager::loadAudio( "collision", assetPath + "audios/sfx/collision.mp3" );
     ST_AudioManager::loadAudio( "horrorBg", assetPath + "audios/music/bg-horror-theme-music.mp3" );
     // TODO: Tailor bg music to scene?
+    ST_AudioManager::stopMusic();   // stop music on new match
     ST_AudioManager::playMusic( "horrorBg" );
 
     // Set up background layer
@@ -436,23 +436,23 @@ ST_Scene::ST_Scene( const ST_GameMetadata& meta )
         , overlay
         , assetPath + "red-button.PNG"
         , overlayDest
-        , 0
+        , -meta.buttonOffsetX   // move to the left
         , meta.buttonOffsetY
         , meta
         , []() { ST_SceneManager::requestQuit(); }
     );
 
-    //// Set up rematch button
-    //ST_Entity& rematch = createButton(
-    //    midground
-    //    , overlay
-    //    , assetPath + "blue-button.PNG"
-    //    , overlayDest
-    //    , meta.buttonOffsetX   // move to the right
-    //    , meta.buttonOffsetY
-    //    , meta
-    //    , [this]() { this->m_IsRunning = false; }
-    //);
+    // Set up rematch button
+    ST_Entity& rematch = createButton(
+        midground
+        , overlay
+        , assetPath + "blue-button.PNG"
+        , overlayDest
+        , meta.buttonOffsetX   // move to the right
+        , meta.buttonOffsetY
+        , meta
+        , []() { ST_SceneManager::changeSceneDeferred( "scene2" ); }
+    );
 
     // Create place holder to display the winner
     ST_Entity& winnerPlaceholder = midground.createEntity();

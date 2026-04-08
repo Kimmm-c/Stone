@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include "ST_Vector2D.h"
 #include "ST_Entity.h"
@@ -168,6 +169,27 @@ struct PlayerActionFlags
 struct PlayerStateComponent
 {
     PlayerState state = PlayerState::Idle;
+};
+
+enum class LabelType
+{
+    PlayerPosition,
+    PlayerColliderPosition
+};
+
+struct Label
+{
+    std::string text{};
+    TTF_Font* font = nullptr;
+    SDL_Color color{};
+    LabelType type = LabelType::PlayerPosition;
+
+    std::string textureCacheKey{};
+    SDL_Texture* texture = nullptr;
+    SDL_FRect dest{};
+
+    bool isVisible = true;
+    bool dirty = false;
 };
 
 // ------------ TAGS ---------------- //

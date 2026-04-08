@@ -64,4 +64,12 @@ public:
             && point.y <= botBound
             );
     }
+
+    static bool isHorizontalCollision( const SDL_FRect& colliderA, const SDL_FRect& colliderB )
+    {
+        float overlapX = std::min( colliderA.x + colliderA.w, colliderB.x + colliderB.w ) - std::max( colliderA.x, colliderB.x );
+        float overlapY = std::min( colliderA.y + colliderA.h, colliderB.y + colliderB.h ) - std::max( colliderA.y, colliderB.y );
+
+        return overlapX < overlapY;
+    }
 };

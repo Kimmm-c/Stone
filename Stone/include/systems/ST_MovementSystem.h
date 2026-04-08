@@ -23,6 +23,7 @@ public:
 
                 // Calculate the position
                 transform.position += velocity * context.delta;
+
             }
         }
     }

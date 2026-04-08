@@ -31,6 +31,8 @@ ST_Game::ST_Game( const char* title, int windowWidth, int windowHeight, bool ful
 
 void ST_Game::init()
 {
+    ST_AudioManager::init();
+
     // map 1
     ST_GameMetadata meta1;
 
@@ -50,12 +52,11 @@ void ST_Game::init()
     meta2.windowW = m_Window->getWidth();
     meta2.windowH = m_Window->getHeight();
 
-    meta2.mapPath = assetPath + "maps/midground.tmx";
-    meta2.bgPath = assetPath + "castle-bg.png";
+    meta2.mapPath = assetPath + "maps/map2.tmx";
+    meta2.bgPath = assetPath + "terrace-bg.png";
 
     std::string scene2 = "scene2";
     ST_SceneManager::loadScene( scene2, meta2 );
-    ST_SceneManager::changeSceneDeferred( scene2 );
 }
 
 void ST_Game::run()
