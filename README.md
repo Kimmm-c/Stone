@@ -2,7 +2,7 @@
 A 2D projectile-based game engine built using a pure Entity-Component-System (ECS) architecture. The engine is designed for turn-based local multiplayer games featuring physics-driven projectiles and destructible terrain.
 
 ## High-Level Engine Architecture
-![engine-uml](engine-architecture-uml.png)
+![engine-uml](engine-architecture-uml.jpg)
 
 The Stone Engine follows a modular ECS architecture, where game logic is separated into entities, components, and systems.
 
