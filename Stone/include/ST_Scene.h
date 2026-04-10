@@ -68,7 +68,7 @@ public:
     ST_Scene( const ST_GameMetadata& meta );
     ~ST_Scene() = default;
 
-
+    // TODO: Refactor system to use Registry for faster entity lookup and decouple Entity from Layer
     //template<typename T, typename... Args>
     //T& addComponent( const Entity& entity, Args&&... args )
     //{
